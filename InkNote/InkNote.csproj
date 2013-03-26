@@ -90,6 +90,54 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image1.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image2.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image3.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image4.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image5.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image6.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image7.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image8.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image9.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image10.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image11.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image12.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image13.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image14.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image15.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Image16.bmp" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
