@@ -54,7 +54,7 @@ namespace InkNote
                 Console.WriteLine(msg);
 
                 int ipt1 = (int)Math.Round(intersections[0], 0);
-                int ipt2 = (int)Math.Round(intersections[1], 0);
+                int ipt2 = (int)Math.Round(intersections[intersections.Length - 1], 0);
                 int count = ipt2 - ipt1;
                 Point[] pts = e.Stroke.GetPoints();
                 Point[] ptPath = new Point[count];

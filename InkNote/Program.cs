@@ -15,7 +15,7 @@ namespace InkNote
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new FormNote());
+            Application.Run(new Palette());
         }
     }
 }

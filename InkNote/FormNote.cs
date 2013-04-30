@@ -47,28 +47,49 @@ namespace InkNote
         [DllImport("user32.dll", EntryPoint = "ReleaseDC")]
         public static extern IntPtr ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
-        public struct BitmapPosData
+        public class BitmapPosData
         {
             public Region region;
             public Point location;
             public Bitmap bmp;
+
+            public void Dispose()
+            {
+                if (bmp != null) bmp.Dispose();
+                if (region != null) region.Dispose();
+            }
         }
 
-        PictureBox mTempPict = null;
+        //PictureBox mTempPict = null;
         Region mRgnTempPict = null;
         Bitmap mBmpClip = null;
         Bitmap mBmpBG = null;
+        Bitmap mBmpTempBG = null;
         bool mIsTempPictMoving = false;
         Point mTempPictMoveOffset = Point.Empty;
+        BitmapPosData mMovingBmpData = null;
         public InkPicture mInkPicture = null;
         Size mBmpSize = Size.Empty;
         List<BitmapPosData> mBgBitmaps = new List<BitmapPosData>();
+        string dataPath = string.Empty;
+        Palette mFormPalette = null;
 
-        public FormNote()
+        public Color mBgColor = Color.Wheat;
+        public string Path
+        {
+            get { return dataPath; }
+        }
+
+        public FormNote(Palette palette, string path) : this(palette)
+        {
+            dataPath = path;
+        }
+        public FormNote(Palette palette)
         {
             InitializeComponent();
-            mTempPict = new PictureBox();
-            mTempPict.Visible = false;
+            mFormPalette = palette;
+            //mTempPict = new PictureBox();
+            //mTempPict.Visible = false;
             //mTempPict.MouseMove += new MouseEventHandler(mTempPict_MouseMove);
             //mTempPict.MouseDown += new MouseEventHandler(mTempPict_MouseDown);
             this.panel1.MouseMove += new MouseEventHandler(FormNote_MouseMove);
@@ -87,7 +108,7 @@ namespace InkNote
             */
             this.panel1.Controls.Add(mInkPicture);
             mInkPicture.Dock = DockStyle.Fill;
-            this.mInkPicture.Controls.Add(mTempPict);
+            //this.mInkPicture.Controls.Add(mTempPict);
             mBmpSize = this.ClientSize;
 
         }
@@ -105,22 +126,78 @@ namespace InkNote
         }
         void FormNote_MouseDown(object sender, MouseEventArgs e)
         {
-            if (mIsTempPictMoving && e.Button == System.Windows.Forms.MouseButtons.Left)
+            Console.WriteLine("FormNote_MouseDown");
+            if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                Console.WriteLine("FormNote_MouseDown");
-                mIsTempPictMoving = false;
-                mInkPicture.Enabled = true;
-                BitmapPosData bmpdt = new BitmapPosData();
-                bmpdt.region = mRgnTempPict.Clone();
-                bmpdt.region.Translate(mTempPict.Location.X, mTempPict.Location.Y);
-                bmpdt.bmp = (Bitmap)mTempPict.Image.Clone();
-                bmpdt.location = mTempPict.Location;
-                mBgBitmaps.Add(bmpdt);
-                DrawBmpToBg(bmpdt, mBmpBG);
-                mTempPict.Visible = false;
-                //Size reqSize = new Size(mTempPict.Location.X + mTempPict.Width, mTempPict.Location.Y + mTempPict.Height);
-                //if (reqSize.Height > mBmpSize.Height) mBmpSize.Height = reqSize.Height;
-                //if (reqSize.Width > mBmpSize.Width) mBmpSize.Width = reqSize.Width;
+                if (mIsTempPictMoving)
+                {
+                    mIsTempPictMoving = false;
+                    //mInkPicture.Enabled = true;
+                    if (mMovingBmpData != null)
+                    {
+                        mMovingBmpData.region.Translate(e.Location.X - (mMovingBmpData.location.X + mMovingBmpData.bmp.Width / 2), e.Location.Y - (mMovingBmpData.location.Y + mMovingBmpData.bmp.Height / 2));
+                        mMovingBmpData.location.X = e.Location.X - mMovingBmpData.bmp.Width / 2;
+                        mMovingBmpData.location.Y = e.Location.Y - mMovingBmpData.bmp.Height / 2;
+                        DrawBmpToBg(mMovingBmpData, mBmpBG);
+                        //BitmapPosData bmpdata = new BitmapPosData();
+                        //bmpdata.bmp = new Bitmap(mMovingBmpData.bmp);
+                        //bmpdata.location = mMovingBmpData.location;
+                        //bmpdata.region = mMovingBmpData.region.Clone();
+                        mBgBitmaps.Add(mMovingBmpData);
+                        //mMovingBmpData.Dispose();
+                        mMovingBmpData = null;
+                    }
+                        /*
+                    else
+                    {
+                        BitmapPosData bmpdt = new BitmapPosData();
+                        bmpdt.region = mRgnTempPict.Clone();
+                        bmpdt.region.Translate(mTempPict.Location.X, mTempPict.Location.Y);
+                        bmpdt.bmp = (Bitmap)mTempPict.Image.Clone();
+                        bmpdt.location = mTempPict.Location;
+                        mBgBitmaps.Add(bmpdt);
+                        DrawBmpToBg(bmpdt, mBmpBG);
+                    }
+                         */
+                    //mTempPict.Visible = false;
+                    //mTempPict.Image.Dispose();
+                    //Size reqSize = new Size(mTempPict.Location.X + mTempPict.Width, mTempPict.Location.Y + mTempPict.Height);
+                    //if (reqSize.Height > mBmpSize.Height) mBmpSize.Height = reqSize.Height;
+                    //if (reqSize.Width > mBmpSize.Width) mBmpSize.Width = reqSize.Width;
+                }
+                else
+                {
+                    if (mInkPicture.InkEnabled == false)
+                    {
+                        foreach (BitmapPosData bmpData in mBgBitmaps)
+                        {
+                            if (bmpData.region.IsVisible(e.Location))
+                            {
+                                mRgnTempPict = bmpData.region.Clone();
+                                mRgnTempPict.Translate(-bmpData.location.X, -bmpData.location.Y);
+                                //mTempPict.Cursor = System.Windows.Forms.Cursors.Hand;
+                                //mTempPict.Image = bmpData.bmp;
+                                //mTempPict.Visible = true;
+                                //mTempPict.Size = bmpData.bmp.Size;
+                                mMovingBmpData = bmpData;
+                                mIsTempPictMoving = true;
+                                mBgBitmaps.Remove(bmpData);
+                                break;
+                            }
+                        }
+
+                        //rebuild background image
+                        mBmpBG.Dispose();
+                        mBmpBG = null;
+                        DrawBackGroundImageAndGrid();
+                        if (mBmpTempBG != null)
+                        {
+                            mBmpTempBG.Dispose();
+                            mBmpTempBG = null;
+                        }
+                        mBmpTempBG = new Bitmap(mBmpBG);
+                    }
+                }
             }
         }
 
@@ -129,13 +206,23 @@ namespace InkNote
             if (mIsTempPictMoving)
             {
                 Console.WriteLine("FormNote_MouseMove x:{0} y:{1} sender:{2}", e.Location.X, e.Location.Y, sender);
-                if( (e.Location.X + mTempPict.Width/2 < this.mInkPicture.Width)
-                 && (e.Location.X - mTempPict.Width / 2 > this.mInkPicture.Location.X)
-                 && (e.Location.Y + mTempPict.Height / 2 < this.mInkPicture.Height)
-                 && (e.Location.Y - mTempPict.Height / 2 > this.mInkPicture.Location.Y)
+                if ((e.Location.X + mMovingBmpData.bmp.Width / 2 < this.mInkPicture.Width)
+                 && (e.Location.X - mMovingBmpData.bmp.Width / 2 > this.mInkPicture.Location.X)
+                 && (e.Location.Y + mMovingBmpData.bmp.Height / 2 < this.mInkPicture.Height)
+                 && (e.Location.Y - mMovingBmpData.bmp.Height / 2 > this.mInkPicture.Location.Y)
                     )
                 {
-                    mTempPict.Location = new Point(e.Location.X - mTempPict.Width/2, e.Location.Y - mTempPict.Height/2);
+                    mMovingBmpData.region.Translate(e.Location.X - (mMovingBmpData.location.X + mMovingBmpData.bmp.Width / 2), e.Location.Y - (mMovingBmpData.location.Y + mMovingBmpData.bmp.Height / 2));
+                    mMovingBmpData.location = new Point(e.Location.X - mMovingBmpData.bmp.Width / 2, e.Location.Y - mMovingBmpData.bmp.Height / 2);
+                    mBmpBG.Dispose();
+                    mBmpBG = new Bitmap(mBmpTempBG);
+                    this.mInkPicture.BackgroundImage = mBmpBG;
+                    //Graphics g = Graphics.FromImage(mBmpBG);
+                    //g.DrawImage(mBmpTempBG, new Point(0, 0));
+                    DrawBmpToBg(mMovingBmpData, mBmpBG);
+                    this.mInkPicture.Invalidate();
+                    //g.Dispose();
+                    //mTempPict.Location = new Point(e.Location.X - mTempPict.Width/2, e.Location.Y - mTempPict.Height/2);
                 }
             }
         }
@@ -201,25 +288,31 @@ namespace InkNote
                 gt.SetClip(mRgnTempPict, System.Drawing.Drawing2D.CombineMode.Replace);
                 RectangleF rc2 = rg.GetBounds(gt);
                 gt.DrawImage(bmpDt, new Rectangle(0, 0, mBmpClip.Width, mBmpClip.Height), new Rectangle((int)rc.X, (int)rc.Y, (int)rc.Width, (int)rc.Height), GraphicsUnit.Pixel);
-                mTempPict.Image = mBmpClip;
-                mTempPict.Visible = true;
-                mTempPict.Dock = DockStyle.None;
-                mTempPict.Height = mBmpClip.Height;
-                mTempPict.Width = mBmpClip.Width;
+                //mTempPict.Image = mBmpClip;
+                //mTempPict.Visible = true;
+                //mTempPict.Dock = DockStyle.None;
+                //mTempPict.Size = mBmpClip.Size;
+                mMovingBmpData = new BitmapPosData();
+                mMovingBmpData.bmp = mBmpClip;
+                mMovingBmpData.location = new Point(0, 0);
+                mMovingBmpData.region = mRgnTempPict;
 
                 gd.Dispose();
                 gt.Dispose();
                 
+                if (mBmpTempBG != null)
+                {
+                    mBmpTempBG.Dispose();
+                    mBmpTempBG = null;
+                }
+                mBmpTempBG = new Bitmap(mBmpBG);
+
                 DeleteObject(hBmp);
                 GC.Collect();
             }
         }
 
-        private void CopyRegion(Image imgSrc, Region rgSrc, Image imgDst, Point ptDst)
-        {
-        }
-
-        private void toolStripButton1_Click_1(object sender, EventArgs e)
+        public void SelPict()
         {
             this.Visible = false;
             FormSelRegion frm = new FormSelRegion();
@@ -227,28 +320,32 @@ namespace InkNote
             Region rg = frm.SelRegion;
             CopyDesktopImageInClippedRegion(rg);
             mIsTempPictMoving = true;
-            mTempPict.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.Cursor = System.Windows.Forms.Cursors.Hand;
+            //mTempPict.Cursor = System.Windows.Forms.Cursors.Hand;
             this.Visible = true;
             this.mInkPicture.Enabled = false;
         }
 
         private void FormNote_Load(object sender, EventArgs e)
         {
-            DrawGrid();
-            LoadData("test.xml");
+            DrawBackGroundImageAndGrid();
+            if (dataPath != string.Empty)
+            {
+                LoadData(dataPath);
+            }
         }
 
         private void FormNote_SizeChanged(object sender, EventArgs e)
         {
-            DrawGrid();
+            DrawBackGroundImageAndGrid();
         }
 
-        private void DrawGrid()
+        public void DrawBackGroundImageAndGrid()
         {
-            Bitmap bmpBk = null;
+            //Bitmap bmpBk = null;
             if(mBmpBG != null)
             {
-                bmpBk= (Bitmap)mBmpBG.Clone();
+                //bmpBk= (Bitmap)mBmpBG.Clone();
                 mBmpBG.Dispose();
             }
 
@@ -258,50 +355,83 @@ namespace InkNote
             mBmpBG = new Bitmap(sz.Width, sz.Height);
             
             Graphics g = Graphics.FromImage(mBmpBG);
-            Pen pen = new Pen(Color.Brown);
-            for (int x = 0; x < this.mInkPicture.Width; x += 25)
+
+            byte cA = mBgColor.A;
+            byte cR = (byte)((mBgColor.R - 50) > 0 ? (mBgColor.R - 50) : 0);
+            byte cG = (byte)((mBgColor.G - 50) > 0 ? (mBgColor.G - 50) : 0);
+            byte cB = (byte)((mBgColor.B - 50) > 0 ? (mBgColor.B - 50) : 0);
+            Color gridColor = Color.FromArgb(cA, cR, cG, cB);
+
+            Pen pen = new Pen(gridColor);
+            pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Dot;
+            for (int x = 25; x < this.mInkPicture.Width; x += 25)
             {
                 g.DrawLine(pen, x, 0, x, this.mInkPicture.Height);
             }
-            for (int y = 0; y < this.mInkPicture.Height; y += 25)
+            for (int y = 25; y < this.mInkPicture.Height; y += 25)
             {
                 g.DrawLine(pen, 0, y, this.mInkPicture.Width, y);
             }
-            if (bmpBk != null)
-            {
-                g.DrawImage(bmpBk, new Point(0, 0));
-                bmpBk.Dispose();
-            }
+            pen.DashStyle = System.Drawing.Drawing2D.DashStyle.Solid;
+            g.DrawLine(pen, 0, 0, this.mInkPicture.Width, 0);
+            g.DrawLine(pen, 0, 0, 0, this.mInkPicture.Height);
+            g.DrawLine(pen, this.mInkPicture.Width - 1, 0, this.mInkPicture.Width - 1, this.mInkPicture.Height - 1);
+            g.DrawLine(pen, 0, this.mInkPicture.Height - 1, this.mInkPicture.Width - 1, this.mInkPicture.Height - 1);
+            //if (bmpBk != null)
+            //{
+            //    g.DrawImage(bmpBk, new Point(0, 0));
+            //    bmpBk.Dispose();
+            //}
             pen.Dispose();
             g.Dispose();
-            mInkPicture.BackColor = Color.Wheat;
+
+            foreach (BitmapPosData bmpData in mBgBitmaps)
+            {
+                DrawBmpToBg(bmpData, mBmpBG);
+            }
+
+            mInkPicture.BackColor = mBgColor;
             mInkPicture.BackgroundImage = mBmpBG;
         }
 
-        private void LoadData(string path)
+        public void LoadData(string path)
         {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.Load(path);
-            //XmlNodeList dadaNodes = doc.GetElementsByTagName("data");
-            //if (dadaNodes.Count > 0)
+            XmlNodeList dataNodes = doc.GetElementsByTagName("data");
+            if (dataNodes.Count > 0)
             {
-                //XmlNode dataNode = dadaNodes[0];
-                XmlNodeList strokeNodes = doc.GetElementsByTagName("stroke");
-                if (strokeNodes.Count > 0)
+                XmlNode dataNode = dataNodes[0];
+                if (dataNode.Attributes["x"] != null && dataNode.Attributes["y"] != null)
+                    this.Location = new Point(Int32.Parse(dataNode.Attributes["x"].Value), Int32.Parse(dataNode.Attributes["y"].Value));
+                if (dataNode.Attributes["width"] != null && dataNode.Attributes["height"] != null)
+                    this.Size = new Size(Int32.Parse(dataNode.Attributes["width"].Value), Int32.Parse(dataNode.Attributes["height"].Value));
+                if (dataNode.Attributes["bgcolor"] != null)
                 {
-                    XmlNode strokeNode = strokeNodes[0];
-                    XmlCDataSection cdata_stroke = (XmlCDataSection)strokeNode.FirstChild;
-                    byte[] decoded = System.Convert.FromBase64String(cdata_stroke.Data);
-                    mInkPicture.Ink.Load(decoded);
-                    mInkPicture.Refresh();
+                    try
+                    {
+                        this.mBgColor = Color.FromArgb(Int32.Parse(dataNode.Attributes["bgcolor"].Value));
+                    }
+                    catch (Exception e)
+                    {
+                        this.mBgColor = Color.Wheat;
+                    }
                 }
+            }
+            XmlNodeList strokeNodes = doc.GetElementsByTagName("stroke");
+            if (strokeNodes.Count > 0)
+            {
+                XmlNode strokeNode = strokeNodes[0];
+                XmlCDataSection cdata_stroke = (XmlCDataSection)strokeNode.FirstChild;
+                byte[] decoded = System.Convert.FromBase64String(cdata_stroke.Data);
+                mInkPicture.Ink.Load(decoded);
+                mInkPicture.Refresh();
             }
 
             XmlNodeList imageNodes = doc.GetElementsByTagName("image");
-            if (imageNodes.Count > 0)
+            foreach(XmlNode imageNode in imageNodes)
             {
                 BitmapPosData bmpdt = new BitmapPosData();
-                XmlNode imageNode = imageNodes[0];
                 bmpdt.location.X = Int32.Parse(imageNode.Attributes["x"].Value);
                 bmpdt.location.Y = Int32.Parse(imageNode.Attributes["y"].Value);
 
@@ -312,10 +442,7 @@ namespace InkNote
                         XmlCDataSection cdata_region = (XmlCDataSection)node.FirstChild;
                         byte[] decoded = System.Convert.FromBase64String(cdata_region.Data);
                         Region regionTmp = new Region();
-                        // Get the region data for the second region.
                         System.Drawing.Drawing2D.RegionData region2Data = regionTmp.GetRegionData();
-                        // Set the Data property for the second region to the Data from the first region.
-                        // Construct a third region using the modified RegionData of the second region.
                         region2Data.Data = decoded;
                         bmpdt.region = new Region(region2Data);
                         regionTmp.Dispose();
@@ -327,8 +454,21 @@ namespace InkNote
                         using (System.IO.MemoryStream ms = new System.IO.MemoryStream())
                         {
                             ms.Write(decoded, 0, decoded.Length);
-                            Bitmap bmp = (Bitmap)Image.FromStream(ms);
-                            bmpdt.bmp = bmp;
+                            Bitmap bmpTmp = (Bitmap)Bitmap.FromStream(ms, false, true);
+                            // Color format of a bitmap loaded from stream is 32rgb,
+                            // but default bitmap format is 32Argb
+                            // it cause a problem when save this bitmap.
+                            // so, create new bitmap and copy its color one by one
+                            Bitmap bmp = new Bitmap(bmpTmp.Width, bmpTmp.Height);
+                            for (int x = 0; x < bmpTmp.Width; x++)
+                            {
+                                for (int y = 0; y < bmpTmp.Height; y++)
+                                {
+                                    Color c = bmpTmp.GetPixel(x, y);
+                                    bmp.SetPixel(x, y, c);
+                                }
+                            }
+                            bmpdt.bmp = (Bitmap)bmp;
                         }
                         /*
                         System.IO.FileStream fsw = System.IO.File.OpenWrite("temp.bmp");
@@ -347,13 +487,19 @@ namespace InkNote
             }
 
         }
-        private void Save()
+        public void Save()
         {
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
-            XmlNode nodeRoot = doc.CreateElement("data");
-            doc.AppendChild(nodeRoot);
+            XmlElement dataNode = doc.CreateElement("data");
+            dataNode.SetAttribute("x", this.Location.X.ToString());
+            dataNode.SetAttribute("y", this.Location.Y.ToString());
+            dataNode.SetAttribute("width", this.Size.Width.ToString());
+            dataNode.SetAttribute("height", this.Size.Height.ToString());
+            dataNode.SetAttribute("bgcolor", this.mBgColor.ToArgb().ToString());
+
+            doc.AppendChild(dataNode);
             XmlNode nodeStroke = doc.CreateElement("stroke");
-            nodeRoot.AppendChild(nodeStroke);
+            dataNode.AppendChild(nodeStroke);
             byte[] savedInk = mInkPicture.Ink.Save(PersistenceFormat.InkSerializedFormat);
             string str_stroke = System.Convert.ToBase64String(savedInk);
             XmlCDataSection cdataStroke = doc.CreateCDataSection(str_stroke);
@@ -383,8 +529,33 @@ namespace InkNote
                 elmImage.AppendChild(elmBmpData);
                 nodeImages.AppendChild(elmImage);
             }
-            nodeRoot.AppendChild(nodeImages);
-            doc.Save("test.xml");
+            dataNode.AppendChild(nodeImages);
+            if (dataPath != string.Empty)
+            {
+                doc.Save(dataPath);
+            }
+            else
+            {
+                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
+                saveFileDialog1.DefaultExt = "ikn";
+                saveFileDialog1.Filter = "InkNote files (*.ikn)|*.ikn";
+                saveFileDialog1.FilterIndex = 2;
+                saveFileDialog1.RestoreDirectory = true;
+                string dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
+                if(System.IO.Directory.Exists(dirPath) == false)
+                {
+                    System.IO.DirectoryInfo dirInfo = System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote");
+                }
+                saveFileDialog1.InitialDirectory = dirPath;
+                //saveFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+                //saveFileDialog1.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
+
+                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    dataPath = saveFileDialog1.FileName;
+                    doc.Save(dataPath);
+                }
+            }
         }
         private void SaveStroke()
         {
@@ -451,12 +622,6 @@ namespace InkNote
 
         }
 
-        private void toolStripButton2_Click(object sender, EventArgs e)
-        {
-            Save();
-
-        }
-
         private void FormNote_KeyPress(object sender, KeyPressEventArgs e)
         {
 
@@ -466,5 +631,46 @@ namespace InkNote
         {
 
         }
+
+        public void TurnAroundPenSelMode(PictureBox btn)
+        {
+            mInkPicture.InkEnabled = !mInkPicture.InkEnabled;
+            if (mInkPicture.InkEnabled)
+            {
+                this.mInkPicture.Enabled = true;
+                btn.Image = Properties.Resources.Image13;
+            }
+            else
+            {
+                this.mInkPicture.Enabled = false;
+                btn.Image = Properties.Resources.Image1;
+            }
+        }
+
+        private void FormNote_Activated(object sender, EventArgs e)
+        {
+            Size sizePrev = this.Size;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+            Size sizeAfter = this.Size;
+            int dx = (sizeAfter.Width - sizePrev.Width) / 2;
+            int dy = sizeAfter.Height - sizePrev.Height - dx;
+            Point pt = this.Location;
+            pt.Offset(-dx, -dy);
+            this.Location = pt;
+            mFormPalette.activeNote = this;
+        }
+
+        private void FormNote_Deactivate(object sender, EventArgs e)
+        {
+            Size sizePrev = this.Size;
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            Size sizeAfter = this.Size;
+            int dx = (sizePrev.Width - sizeAfter.Width) / 2;
+            int dy = sizePrev.Height - sizeAfter.Height - dx;
+            Point pt = this.Location;
+            pt.Offset(dx, dy);
+            this.Location = pt;
+        }
+
     }
 }
