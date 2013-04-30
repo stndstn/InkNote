@@ -536,16 +536,20 @@ namespace InkNote
             }
             else
             {
+                string dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
+                if (System.IO.Directory.Exists(dirPath) == false)
+                {
+                    System.IO.DirectoryInfo dirInfo = System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote");
+                }
+                string name = Guid.NewGuid().ToString();
+                dataPath = dirPath + "\\" + name + ".ikn";
+                doc.Save(dataPath);
+                /*
                 SaveFileDialog saveFileDialog1 = new SaveFileDialog();
                 saveFileDialog1.DefaultExt = "ikn";
                 saveFileDialog1.Filter = "InkNote files (*.ikn)|*.ikn";
                 saveFileDialog1.FilterIndex = 2;
                 saveFileDialog1.RestoreDirectory = true;
-                string dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
-                if(System.IO.Directory.Exists(dirPath) == false)
-                {
-                    System.IO.DirectoryInfo dirInfo = System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote");
-                }
                 saveFileDialog1.InitialDirectory = dirPath;
                 //saveFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
                 //saveFileDialog1.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
@@ -555,6 +559,7 @@ namespace InkNote
                     dataPath = saveFileDialog1.FileName;
                     doc.Save(dataPath);
                 }
+                 */
             }
         }
         private void SaveStroke()
@@ -598,38 +603,16 @@ namespace InkNote
         {
             if (e.Control && (e.KeyCode == Keys.C))
             {
-                //CopyToClipboard();
+                CopyToClipboard();
             }
             else if (e.Control && (e.KeyCode == Keys.S))
             {
                 Save();
-                //SaveImage();
-                //SaveStroke();
             }
             else if (e.Control && (e.KeyCode == Keys.Z))
             {
-                //Undo();
+                Undo();
             }
-            else if (e.KeyCode == Keys.F5)
-            {
-                /*
-                if (mUseDesktopImgAsBG)
-                {
-                    CopyDesktopImage();
-                }
-                 */
-            }
-
-        }
-
-        private void FormNote_KeyPress(object sender, KeyPressEventArgs e)
-        {
-
-        }
-
-        private void FormNote_KeyUp(object sender, KeyEventArgs e)
-        {
-
         }
 
         public void TurnAroundPenSelMode(PictureBox btn)
@@ -672,5 +655,42 @@ namespace InkNote
             this.Location = pt;
         }
 
+        private void FormNote_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            if (MessageBox.Show("Delete this note?", "InkNOte", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+            {
+                mFormPalette.deleteNote(this);
+                if (Path != string.Empty)
+                {
+                    System.IO.File.Delete(Path);
+                }
+            }
+            else
+            {
+                e.Cancel = true;
+            }
+        }
+
+        public void CopyToClipboard()
+        {
+            Console.WriteLine("CopyToClipboard");
+            Size size = mInkPicture.Size;
+            Point ptSrc = mInkPicture.PointToScreen(new Point(0, 0));
+            Bitmap bmp = new Bitmap(size.Width, size.Height);
+            Graphics g = Graphics.FromImage(bmp);
+            g.CopyFromScreen(ptSrc, new Point(0, 0), size);
+            Clipboard.SetImage(bmp);
+        }
+        public void Undo()
+        {
+            int count = mInkPicture.Ink.Strokes.Count;
+            if (count > 0)
+            {
+                Stroke lastStroke = mInkPicture.Ink.Strokes[count - 1];
+                mInkPicture.Ink.DeleteStroke(lastStroke);
+                mInkPicture.Refresh();
+            }
+        }
+        
     }
 }

@@ -164,11 +164,9 @@ namespace InkNote
             Console.WriteLine("Palette_FormClosing");
             foreach (FormNote note in notes)
             {
-                if (isClosing)
-                    note.Save();
+                note.Save();
                 note.Visible = false;
             }
-
             if (isClosing == false)
             {
                 e.Cancel = true;
@@ -187,8 +185,8 @@ namespace InkNote
 
         private void pictCopy_Click(object sender, EventArgs e)
         {
-            //fm.CopyToClipboard();
-            MessageBox.Show("Not implemented yet");
+            if (activeNote == null) return;
+            activeNote.CopyToClipboard();
             restoreInkMode();
             ActivatePaintingScreen();
         }
@@ -214,22 +212,19 @@ namespace InkNote
              */
         }
 
+        public void deleteNote(FormNote note)
+        {
+            notes.Remove(note);
+            if (activeNote == note)
+            {
+                activeNote = null;
+            }
+        }
         private void pictDelete_Click(object sender, EventArgs e)
         {
             //fm.Clear();
-            if (activeNote == null) return;
-            if (MessageBox.Show("Delete this note?", "Delete", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
-            {
-                activeNote.Close();
-                notes.Remove(activeNote);
-                System.IO.File.Delete(activeNote.Path);
-                activeNote = null;
-            }
-            else
-            {
-                restoreInkMode();
-                ActivatePaintingScreen();
-            }
+            restoreInkMode();
+            ActivatePaintingScreen();
         }
 
         private void ActivatePaintingScreen()
@@ -311,8 +306,8 @@ namespace InkNote
 
         private void pictUndo_Click(object sender, EventArgs e)
         {
-            //fm.Undo();
-            MessageBox.Show("Not implemented yet");
+            if (activeNote == null) return;
+            activeNote.Undo();
             restoreInkMode();
             ActivatePaintingScreen();
         }

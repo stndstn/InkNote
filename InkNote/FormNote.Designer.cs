@@ -95,11 +95,10 @@
             this.Text = "FormNote";
             this.Activated += new System.EventHandler(this.FormNote_Activated);
             this.Deactivate += new System.EventHandler(this.FormNote_Deactivate);
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormNote_FormClosing);
             this.Load += new System.EventHandler(this.FormNote_Load);
             this.SizeChanged += new System.EventHandler(this.FormNote_SizeChanged);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormNote_KeyDown);
-            this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.FormNote_KeyPress);
-            this.KeyUp += new System.Windows.Forms.KeyEventHandler(this.FormNote_KeyUp);
             this.ResumeLayout(false);
 
         }
