@@ -32,6 +32,8 @@ namespace InkNote
             mInkPicture.NewPackets += new InkCollectorNewPacketsEventHandler(mInkPicture_NewPackets);
             mInkPicture.Stroke += new InkCollectorStrokeEventHandler(mInkPicture_Stroke);
             mInkPicture.DefaultDrawingAttributes.Color = Color.Blue;
+
+            this.Icon = Properties.Resources.Icon1;
         }
 
         void mInkPicture_Stroke(object sender, InkCollectorStrokeEventArgs e)

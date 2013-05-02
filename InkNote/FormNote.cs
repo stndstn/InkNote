@@ -247,10 +247,15 @@ namespace InkNote
 
         private void FormNote_Load(object sender, EventArgs e)
         {
-            DrawBackGroundImageAndGrid();
             if (dataPath != string.Empty)
             {
+                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
                 LoadData(dataPath);
+            }
+            else
+            {
+                //new memo
+                DrawBackGroundImageAndGrid();
             }
         }
 
@@ -456,24 +461,9 @@ namespace InkNote
                 string name = Guid.NewGuid().ToString();
                 dataPath = dirPath + "\\" + name + ".ikn";
                 doc.Save(dataPath);
-                /*
-                SaveFileDialog saveFileDialog1 = new SaveFileDialog();
-                saveFileDialog1.DefaultExt = "ikn";
-                saveFileDialog1.Filter = "InkNote files (*.ikn)|*.ikn";
-                saveFileDialog1.FilterIndex = 2;
-                saveFileDialog1.RestoreDirectory = true;
-                saveFileDialog1.InitialDirectory = dirPath;
-                //saveFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-                //saveFileDialog1.InitialDirectory = System.IO.Directory.GetCurrentDirectory();
-
-                if (saveFileDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    dataPath = saveFileDialog1.FileName;
-                    doc.Save(dataPath);
-                }
-                 */
             }
         }
+        /*
         private void SaveStroke()
         {
             Console.WriteLine("SaveStroke");
@@ -485,6 +475,7 @@ namespace InkNote
             String s = new string(chardata, 7, chardata.Length - 8);
             Console.WriteLine("{0}", s);
         }
+         */
 /*
         private void SaveImage()
         {
