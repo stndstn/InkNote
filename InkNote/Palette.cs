@@ -12,7 +12,6 @@ namespace InkNote
 {
     public partial class Palette : Form
     {
-        //public bool isClosing = false;
         public FormNote activeNote = null;
         List<FormNote> notes = null;
         NotifyIcon mNotifyIcon = null;
@@ -26,7 +25,6 @@ namespace InkNote
         private void Palette_Load(object sender, EventArgs e)
         {
             notes = new List<FormNote>();
-            //string curDir = System.IO.Directory.GetCurrentDirectory();
             string dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
             string[] pathes = System.IO.Directory.GetFiles(dirPath, "*.ikn");
             foreach (string path in pathes)
@@ -176,7 +174,6 @@ namespace InkNote
 
         private void pictSave_Click(object sender, EventArgs e)
         {
-            //FormNote fm = (FormNote)this.Owner;
             if (activeNote == null) return;
             activeNote.Save();
             restoreInkMode();
@@ -195,21 +192,6 @@ namespace InkNote
         {
             if (activeNote == null) return;
             activeNote.SelPict();
-            /*
-            Rectangle rc = fm.mRcSelected; // backup because it will be emptied after CopyDesktopImage() was called.
-            if (rc != Rectangle.Empty)
-            {
-                if (fm.mUseDesktopImgAsBG)
-                {
-                    fm.CopyDesktopImage();
-                    fm.mRcSelected = rc;
-                }
-            }
-            SelDesktopRectScreen s = new SelDesktopRectScreen();
-            s.ShowDialog();
-            fm.mRcSelected = s.SelectedRect;
-            fm.DrawSelRect();
-             */
         }
 
         public void deleteNote(FormNote note)
@@ -222,7 +204,13 @@ namespace InkNote
         }
         private void pictDelete_Click(object sender, EventArgs e)
         {
-            //fm.Clear();
+            if (activeNote != null)
+            {
+                if (activeNote.mInkPicture.InkEnabled == false)
+                {
+                    activeNote.DeleteSelectedImage();
+                }
+            }
             restoreInkMode();
             ActivatePaintingScreen();
         }
@@ -291,19 +279,6 @@ namespace InkNote
             }
         }
 
-        private void Palette_KeyDown(object sender, KeyEventArgs e)
-        {
-            if (e.Control && (e.KeyCode == Keys.C))
-            {
-                //fm.CopyToClipboard();
-            }
-            else if (e.Control && (e.KeyCode == Keys.S))
-            {
-                if (activeNote == null) return;
-                activeNote.Save();
-            }
-        }
-
         private void pictUndo_Click(object sender, EventArgs e)
         {
             if (activeNote == null) return;
@@ -331,8 +306,6 @@ namespace InkNote
 
         private void pictPick_Click(object sender, EventArgs e)
         {
-            //activeNote.mInkPicture.EditingMode = InkOverlayEditingMode.Select;
-            //activeNote.TurnAroundPenSelMode((PictureBox)sender);
             if (activeNote == null) return;
             activeNote.mInkPicture.InkEnabled = false;
             activeNote.mInkPicture.Enabled = false;

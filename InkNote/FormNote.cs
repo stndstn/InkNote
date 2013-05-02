@@ -60,9 +60,6 @@ namespace InkNote
             }
         }
 
-        //PictureBox mTempPict = null;
-        Region mRgnTempPict = null;
-        Bitmap mBmpClip = null;
         Bitmap mBmpBG = null;
         Bitmap mBmpTempBG = null;
         bool mIsTempPictMoving = false;
@@ -88,27 +85,11 @@ namespace InkNote
         {
             InitializeComponent();
             mFormPalette = palette;
-            //mTempPict = new PictureBox();
-            //mTempPict.Visible = false;
-            //mTempPict.MouseMove += new MouseEventHandler(mTempPict_MouseMove);
-            //mTempPict.MouseDown += new MouseEventHandler(mTempPict_MouseDown);
             this.panel1.MouseMove += new MouseEventHandler(FormNote_MouseMove);
             this.panel1.MouseDown += new MouseEventHandler(FormNote_MouseDown);
             mInkPicture = new InkPicture();
-
-            /*
-            string s1 = "AEkdAi4qAwRIEEU1GRQyCACsFQLUuOJBMwgAgAwCQ7fiQRGrqtNBCiItgv2l+0bCVKm5VJQs3NixUTcogvy5+XQJZYsCwWVFipQA";
-            string s2 = "AE4cA4CABB0CLioDBEgQRTUZFDIIAKwVAtS44kEzCACADAJDt+JBEauq00EKIi2C/aX7RsJUqblUlCzc2LFRNyiC/Ln5dAlliwLBZUWKlAA=";
-            byte[] decoded1 = System.Convert.FromBase64String(s1);
-            byte[] decoded2 = System.Convert.FromBase64String(s2);
-            //mInkPicture.Ink.Load(decoded1);
-            //mInkPicture.Refresh();
-            mInkPicture.Ink.Load(decoded2);
-            mInkPicture.Refresh();
-            */
             this.panel1.Controls.Add(mInkPicture);
             mInkPicture.Dock = DockStyle.Fill;
-            //this.mInkPicture.Controls.Add(mTempPict);
             mBmpSize = this.ClientSize;
 
         }
@@ -132,38 +113,15 @@ namespace InkNote
                 if (mIsTempPictMoving)
                 {
                     mIsTempPictMoving = false;
-                    //mInkPicture.Enabled = true;
                     if (mMovingBmpData != null)
                     {
                         mMovingBmpData.region.Translate(e.Location.X - (mMovingBmpData.location.X + mMovingBmpData.bmp.Width / 2), e.Location.Y - (mMovingBmpData.location.Y + mMovingBmpData.bmp.Height / 2));
                         mMovingBmpData.location.X = e.Location.X - mMovingBmpData.bmp.Width / 2;
                         mMovingBmpData.location.Y = e.Location.Y - mMovingBmpData.bmp.Height / 2;
                         DrawBmpToBg(mMovingBmpData, mBmpBG);
-                        //BitmapPosData bmpdata = new BitmapPosData();
-                        //bmpdata.bmp = new Bitmap(mMovingBmpData.bmp);
-                        //bmpdata.location = mMovingBmpData.location;
-                        //bmpdata.region = mMovingBmpData.region.Clone();
                         mBgBitmaps.Add(mMovingBmpData);
-                        //mMovingBmpData.Dispose();
                         mMovingBmpData = null;
                     }
-                        /*
-                    else
-                    {
-                        BitmapPosData bmpdt = new BitmapPosData();
-                        bmpdt.region = mRgnTempPict.Clone();
-                        bmpdt.region.Translate(mTempPict.Location.X, mTempPict.Location.Y);
-                        bmpdt.bmp = (Bitmap)mTempPict.Image.Clone();
-                        bmpdt.location = mTempPict.Location;
-                        mBgBitmaps.Add(bmpdt);
-                        DrawBmpToBg(bmpdt, mBmpBG);
-                    }
-                         */
-                    //mTempPict.Visible = false;
-                    //mTempPict.Image.Dispose();
-                    //Size reqSize = new Size(mTempPict.Location.X + mTempPict.Width, mTempPict.Location.Y + mTempPict.Height);
-                    //if (reqSize.Height > mBmpSize.Height) mBmpSize.Height = reqSize.Height;
-                    //if (reqSize.Width > mBmpSize.Width) mBmpSize.Width = reqSize.Width;
                 }
                 else
                 {
@@ -173,12 +131,6 @@ namespace InkNote
                         {
                             if (bmpData.region.IsVisible(e.Location))
                             {
-                                mRgnTempPict = bmpData.region.Clone();
-                                mRgnTempPict.Translate(-bmpData.location.X, -bmpData.location.Y);
-                                //mTempPict.Cursor = System.Windows.Forms.Cursors.Hand;
-                                //mTempPict.Image = bmpData.bmp;
-                                //mTempPict.Visible = true;
-                                //mTempPict.Size = bmpData.bmp.Size;
                                 mMovingBmpData = bmpData;
                                 mIsTempPictMoving = true;
                                 mBgBitmaps.Remove(bmpData);
@@ -187,9 +139,8 @@ namespace InkNote
                         }
 
                         //rebuild background image
-                        mBmpBG.Dispose();
-                        mBmpBG = null;
                         DrawBackGroundImageAndGrid();
+                        //take snapshot of background except moving image
                         if (mBmpTempBG != null)
                         {
                             mBmpTempBG.Dispose();
@@ -216,41 +167,12 @@ namespace InkNote
                     mMovingBmpData.location = new Point(e.Location.X - mMovingBmpData.bmp.Width / 2, e.Location.Y - mMovingBmpData.bmp.Height / 2);
                     mBmpBG.Dispose();
                     mBmpBG = new Bitmap(mBmpTempBG);
-                    this.mInkPicture.BackgroundImage = mBmpBG;
-                    //Graphics g = Graphics.FromImage(mBmpBG);
-                    //g.DrawImage(mBmpTempBG, new Point(0, 0));
                     DrawBmpToBg(mMovingBmpData, mBmpBG);
-                    this.mInkPicture.Invalidate();
-                    //g.Dispose();
-                    //mTempPict.Location = new Point(e.Location.X - mTempPict.Width/2, e.Location.Y - mTempPict.Height/2);
+                    this.mInkPicture.BackgroundImage = mBmpBG;
                 }
             }
         }
 
-        /*
-        void mTempPict_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (mIsTempPictMoving && e.Button == System.Windows.Forms.MouseButtons.Left)
-            {
-                Console.WriteLine("mTempPict_MouseDown");
-                mIsTempPictMoving = false;
-                mTempPictMoveOffset = mTempPict.Location;
-                mTempPictMoveOffset.Offset(e.Location);
-            }
-        }
-        void mTempPict_MouseMove(object sender, MouseEventArgs e)
-        {
-            if (mIsTempPictMoving)
-            {
-                if (e.Location.X != 0 && e.Location.Y != 0)
-                {
-                    Console.WriteLine("mTempPict_MouseMove x:{0} y:{1} sender:{2}", e.Location.X, e.Location.Y, sender);
-                    //mTempPict.Location = new Point(e.Location.X - mTempPictMoveOffset.X, e.Location.Y - mTempPictMoveOffset.Y);
-                    mTempPict.Location = e.Location;
-                }
-            }
-        }
-        */
         public void CopyDesktopImageInClippedRegion(Region rg)
         {
             Console.WriteLine("CopyDesktopImageToClippedRegion");
@@ -274,38 +196,24 @@ namespace InkNote
                 DeleteDC(hdcCompatible);
                 ReleaseDC(GetDesktopWindow(), hdcScreen);
 
-                if (mBmpClip != null) mBmpClip.Dispose();
-
                 Bitmap bmpDt = System.Drawing.Image.FromHbitmap(hBmp);
                 Graphics gd = Graphics.FromImage(bmpDt);
                 RectangleF rc = rg.GetBounds(gd);
-                mBmpClip = new Bitmap((int)rc.Width, (int)rc.Height);
-                Graphics gt = Graphics.FromImage(mBmpClip);
-                //gt.FillRectangle(new SolidBrush(Color.FromArgb(1, 0, 0)), new Rectangle(0, 0, (int)rc.Width, (int)rc.Height));
-                if (mRgnTempPict != null) mRgnTempPict.Dispose();
-                mRgnTempPict = rg.Clone();
-                mRgnTempPict.Translate(-rc.X, -rc.Y);
-                gt.SetClip(mRgnTempPict, System.Drawing.Drawing2D.CombineMode.Replace);
+                Bitmap bmpClip = new Bitmap((int)rc.Width, (int)rc.Height);
+                Graphics gt = Graphics.FromImage(bmpClip);
+                Region rgnTempPict = rg.Clone();
+                rgnTempPict.Translate(-rc.X, -rc.Y);
+                gt.SetClip(rgnTempPict, System.Drawing.Drawing2D.CombineMode.Replace);
                 RectangleF rc2 = rg.GetBounds(gt);
-                gt.DrawImage(bmpDt, new Rectangle(0, 0, mBmpClip.Width, mBmpClip.Height), new Rectangle((int)rc.X, (int)rc.Y, (int)rc.Width, (int)rc.Height), GraphicsUnit.Pixel);
-                //mTempPict.Image = mBmpClip;
-                //mTempPict.Visible = true;
-                //mTempPict.Dock = DockStyle.None;
-                //mTempPict.Size = mBmpClip.Size;
+                gt.DrawImage(bmpDt, new Rectangle(0, 0, bmpClip.Width, bmpClip.Height), new Rectangle((int)rc.X, (int)rc.Y, (int)rc.Width, (int)rc.Height), GraphicsUnit.Pixel);
                 mMovingBmpData = new BitmapPosData();
-                mMovingBmpData.bmp = mBmpClip;
+                mMovingBmpData.bmp = bmpClip;
                 mMovingBmpData.location = new Point(0, 0);
-                mMovingBmpData.region = mRgnTempPict;
+                mMovingBmpData.region = rgnTempPict.Clone();
+                rgnTempPict.Dispose();
 
                 gd.Dispose();
                 gt.Dispose();
-                
-                if (mBmpTempBG != null)
-                {
-                    mBmpTempBG.Dispose();
-                    mBmpTempBG = null;
-                }
-                mBmpTempBG = new Bitmap(mBmpBG);
 
                 DeleteObject(hBmp);
                 GC.Collect();
@@ -316,14 +224,25 @@ namespace InkNote
         {
             this.Visible = false;
             FormSelRegion frm = new FormSelRegion();
-            frm.ShowDialog();
-            Region rg = frm.SelRegion;
-            CopyDesktopImageInClippedRegion(rg);
-            mIsTempPictMoving = true;
-            this.Cursor = System.Windows.Forms.Cursors.Hand;
-            //mTempPict.Cursor = System.Windows.Forms.Cursors.Hand;
+            if (frm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            {
+                Region rg = frm.SelRegion;
+                CopyDesktopImageInClippedRegion(rg);
+                
+                //take snapshot of background except moving image
+                if (mBmpTempBG != null)
+                {
+                    mBmpTempBG.Dispose();
+                    mBmpTempBG = null;
+                }
+                mBmpTempBG = new Bitmap(mBmpBG);
+
+                mIsTempPictMoving = true;
+                this.Cursor = System.Windows.Forms.Cursors.Hand;
+                this.mInkPicture.Enabled = false;
+                this.mInkPicture.InkEnabled = false;
+            }
             this.Visible = true;
-            this.mInkPicture.Enabled = false;
         }
 
         private void FormNote_Load(object sender, EventArgs e)
@@ -342,10 +261,8 @@ namespace InkNote
 
         public void DrawBackGroundImageAndGrid()
         {
-            //Bitmap bmpBk = null;
             if(mBmpBG != null)
             {
-                //bmpBk= (Bitmap)mBmpBG.Clone();
                 mBmpBG.Dispose();
             }
 
@@ -377,11 +294,6 @@ namespace InkNote
             g.DrawLine(pen, 0, 0, 0, this.mInkPicture.Height);
             g.DrawLine(pen, this.mInkPicture.Width - 1, 0, this.mInkPicture.Width - 1, this.mInkPicture.Height - 1);
             g.DrawLine(pen, 0, this.mInkPicture.Height - 1, this.mInkPicture.Width - 1, this.mInkPicture.Height - 1);
-            //if (bmpBk != null)
-            //{
-            //    g.DrawImage(bmpBk, new Point(0, 0));
-            //    bmpBk.Dispose();
-            //}
             pen.Dispose();
             g.Dispose();
 
@@ -573,13 +485,10 @@ namespace InkNote
             String s = new string(chardata, 7, chardata.Length - 8);
             Console.WriteLine("{0}", s);
         }
+/*
         private void SaveImage()
         {
             Console.WriteLine("SaveImage");
-            //Rectangle rc =  new Rectangle(0, 0, mInkPicture.Width, mInkPicture.Height);
-            //Bitmap bmp = new Bitmap(rc.Width, rc.Height);
-            //Graphics g = Graphics.FromImage(bmp);
-            //g.CopyFromScreen(rc.Location, new Point(0, 0), rc.Size);
 
             System.IO.Stream imgStream;
             SaveFileDialog saveFileDialog1 = new SaveFileDialog();
@@ -597,13 +506,17 @@ namespace InkNote
             }
             //mInkPicture.Image.Save("test.jpg", System.Drawing.Imaging.ImageFormat.Jpeg);
         }
-
+*/
         //Forms.KetPreview should be true
         private void FormNote_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Control && (e.KeyCode == Keys.C))
             {
                 CopyToClipboard();
+            }
+            else if (e.KeyCode == Keys.Delete)
+            {
+                DeleteSelectedImage();
             }
             else if (e.Control && (e.KeyCode == Keys.S))
             {
@@ -612,21 +525,6 @@ namespace InkNote
             else if (e.Control && (e.KeyCode == Keys.Z))
             {
                 Undo();
-            }
-        }
-
-        public void TurnAroundPenSelMode(PictureBox btn)
-        {
-            mInkPicture.InkEnabled = !mInkPicture.InkEnabled;
-            if (mInkPicture.InkEnabled)
-            {
-                this.mInkPicture.Enabled = true;
-                btn.Image = Properties.Resources.Image13;
-            }
-            else
-            {
-                this.mInkPicture.Enabled = false;
-                btn.Image = Properties.Resources.Image1;
             }
         }
 
@@ -691,6 +589,22 @@ namespace InkNote
                 mInkPicture.Refresh();
             }
         }
-        
+
+        public void DeleteSelectedImage()
+        {
+            if (mIsTempPictMoving)
+            {
+                mIsTempPictMoving = false;
+                //dispose selected image
+                if (mMovingBmpData != null)
+                {
+                    mMovingBmpData.Dispose();
+                    mMovingBmpData = null;
+                }
+
+                //rebuild background image
+                DrawBackGroundImageAndGrid();
+            }
+        }
     }
 }

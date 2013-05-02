@@ -374,7 +374,6 @@
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Palette_FormClosed);
             this.Load += new System.EventHandler(this.Palette_Load);
             this.VisibleChanged += new System.EventHandler(this.Palette_VisibleChanged);
-            this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.Palette_KeyDown);
             this.contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictSelect)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictCopy)).EndInit();

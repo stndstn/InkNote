@@ -36,7 +36,10 @@ namespace InkNote
 
         void mInkPicture_Stroke(object sender, InkCollectorStrokeEventArgs e)
         {
-            e.Cancel = true; ;
+            e.Cancel = true;
+            mIsRegionClipped = false;
+            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            this.Close();
         }
 
         void mInkPicture_NewPackets(object sender, InkCollectorNewPacketsEventArgs e)
@@ -53,32 +56,36 @@ namespace InkNote
                 }
                 Console.WriteLine(msg);
 
-                int ipt1 = (int)Math.Round(intersections[0], 0);
-                int ipt2 = (int)Math.Round(intersections[intersections.Length - 1], 0);
-                int count = ipt2 - ipt1;
-                Point[] pts = e.Stroke.GetPoints();
-                Point[] ptPath = new Point[count];
-                //Graphics g = this.CreateGraphics();
-                Graphics g = Graphics.FromImage(mBgBmp);
-                mInkPicture.Renderer.InkSpaceToPixel(g, ref pts);
-                Array.Copy(pts, ipt1, ptPath, 0, count);
-                System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
-                path.AddClosedCurve(ptPath);
-                if (mSelRegion != null) mSelRegion.Dispose();
-                mSelRegion = new Region(path);
+                try
+                {
+                    int ipt1 = (int)Math.Round(intersections[0], 0);
+                    int ipt2 = (int)Math.Round(intersections[intersections.Length - 1], 0);
+                    int count = ipt2 - ipt1;
+                    Point[] pts = e.Stroke.GetPoints();
+                    Point[] ptPath = new Point[count];
+                    Graphics g = Graphics.FromImage(mBgBmp);
+                    mInkPicture.Renderer.InkSpaceToPixel(g, ref pts);
+                    Array.Copy(pts, ipt1, ptPath, 0, count);
+                    System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+                    path.AddClosedCurve(ptPath);
+                    if (mSelRegion != null) mSelRegion.Dispose();
+                    mSelRegion = new Region(path);
 
-                SolidBrush b = new SolidBrush(Color.Red);
-                Pen p = new Pen(b);
-                //g.DrawPath(p, path);
-                //g.FillRegion(b, rg);
-                //rg.Dispose();
-                p.Dispose();
-                b.Dispose();
-                g.Dispose();
-                mInkPicture.Refresh();
-                mIsRegionClipped = true;
-                this.Close();
-                //CopyDesktopImageToClipboard();
+                    SolidBrush b = new SolidBrush(Color.Red);
+                    Pen p = new Pen(b);
+                    p.Dispose();
+                    b.Dispose();
+                    g.Dispose();
+                    mInkPicture.Refresh();
+                    mIsRegionClipped = true;
+                    this.DialogResult = System.Windows.Forms.DialogResult.OK;
+                    this.Close();
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                    Console.WriteLine(ex.StackTrace);
+                }
             }
             else
             {
