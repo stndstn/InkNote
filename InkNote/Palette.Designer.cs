@@ -366,7 +366,7 @@
             this.Name = "Palette";
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "Palette";
+            this.Text = "Palette - InkNote";
             this.TopMost = true;
             this.Activated += new System.EventHandler(this.Palette_Activated);
             this.Deactivate += new System.EventHandler(this.Palette_Deactivate);
