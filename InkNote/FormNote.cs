@@ -47,7 +47,7 @@ namespace InkNote
         [DllImport("user32.dll", EntryPoint = "ReleaseDC")]
         public static extern IntPtr ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
-        public class BitmapPosData
+        public class BitmapPosData : IDisposable
         {
             public Region region;
             public Point location;
@@ -222,10 +222,18 @@ namespace InkNote
 
         public void SelPict()
         {
-            this.Visible = false;
-            FormSelRegion frm = new FormSelRegion();
-            if (frm.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            Console.WriteLine("SelPict");
+            //this.Visible = false;
+            foreach (Form c in this.MdiParent.MdiChildren)
             {
+                c.Visible = false;
+            }
+            FormSelRegion frm = new FormSelRegion();
+            DialogResult res = frm.ShowDialog();
+            Console.WriteLine("FormSelRegion.DialogResult is %s", res.ToString());
+            if (res == System.Windows.Forms.DialogResult.OK)
+            {
+            Console.WriteLine("FormSelRegion.DialogResult==OK");
                 Region rg = frm.SelRegion;
                 CopyDesktopImageInClippedRegion(rg);
                 
@@ -237,6 +245,10 @@ namespace InkNote
                 }
                 mBmpTempBG = new Bitmap(mBmpBG);
 
+                foreach (Form c in this.MdiParent.MdiChildren)
+                {
+                    c.Visible = true;
+                }
                 mIsTempPictMoving = true;
                 this.Cursor = System.Windows.Forms.Cursors.Hand;
                 this.mInkPicture.Enabled = false;
@@ -270,6 +282,8 @@ namespace InkNote
             {
                 mBmpBG.Dispose();
             }
+
+            if (mInkPicture == null) return;
 
             Size sz = mBmpSize;
             if (mInkPicture.Width > sz.Width) sz.Width = mInkPicture.Width;
@@ -319,10 +333,27 @@ namespace InkNote
             if (dataNodes.Count > 0)
             {
                 XmlNode dataNode = dataNodes[0];
+                int x = 0;
+                int y = 0;
+                int w = 0;
+                int h = 0;
                 if (dataNode.Attributes["x"] != null && dataNode.Attributes["y"] != null)
-                    this.Location = new Point(Int32.Parse(dataNode.Attributes["x"].Value), Int32.Parse(dataNode.Attributes["y"].Value));
+                {
+                    x = Int32.Parse(dataNode.Attributes["x"].Value);
+                    y = Int32.Parse(dataNode.Attributes["y"].Value);
+                }
                 if (dataNode.Attributes["width"] != null && dataNode.Attributes["height"] != null)
-                    this.Size = new Size(Int32.Parse(dataNode.Attributes["width"].Value), Int32.Parse(dataNode.Attributes["height"].Value));
+                {
+                    w = Int32.Parse(dataNode.Attributes["width"].Value);
+                    h = Int32.Parse(dataNode.Attributes["height"].Value);
+                }
+                x = x < 0 ? 0 : x;
+                x = (x + w) > Screen.PrimaryScreen.WorkingArea.Width ? Screen.PrimaryScreen.WorkingArea.Width - w : x;
+                y = y < 0 ? 0 : y;
+                y = (y + h) > Screen.PrimaryScreen.WorkingArea.Height ? Screen.PrimaryScreen.WorkingArea.Height - h : y;
+                this.Location = new Point(x, y);
+                this.Size = new Size(w, h);
+
                 if (dataNode.Attributes["bgcolor"] != null)
                 {
                     try
@@ -521,6 +552,11 @@ namespace InkNote
 
         private void FormNote_Activated(object sender, EventArgs e)
         {
+            mFormPalette.activeNote = this;
+            //mFormPalette.MdiParent.WindowState = FormWindowState.Maximized;
+            mFormPalette.MdiParent.Visible = true;
+            mFormPalette.SetVisiblePaletteAndNotes();
+
             Size sizePrev = this.Size;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
             Size sizeAfter = this.Size;
@@ -529,7 +565,6 @@ namespace InkNote
             Point pt = this.Location;
             pt.Offset(-dx, -dy);
             this.Location = pt;
-            mFormPalette.activeNote = this;
         }
 
         private void FormNote_Deactivate(object sender, EventArgs e)
@@ -546,17 +581,30 @@ namespace InkNote
 
         private void FormNote_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (MessageBox.Show("Delete this note?", "InkNOte", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
+            if (mFormPalette.isClosing == false)
             {
-                mFormPalette.deleteNote(this);
-                if (Path != string.Empty)
+                if (MessageBox.Show("Delete this note?", "InkNote", MessageBoxButtons.YesNo) == System.Windows.Forms.DialogResult.Yes)
                 {
-                    System.IO.File.Delete(Path);
+                    mFormPalette.deleteNote(this);
+                    if (Path != string.Empty)
+                    {
+                        System.IO.File.Delete(Path);
+                    }
+                }
+                else
+                {
+                    e.Cancel = true;
                 }
             }
             else
             {
-                e.Cancel = true;
+                /*
+                if (mInkPicture != null)
+                {
+                    mInkPicture.Dispose();
+                    mInkPicture = null;
+                }
+                 */
             }
         }
 

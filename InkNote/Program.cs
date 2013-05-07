@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Diagnostics;
 using System.Windows.Forms;
 
 namespace InkNote
@@ -13,9 +14,17 @@ namespace InkNote
         [STAThread]
         static void Main()
         {
+            string name = Process.GetCurrentProcess().ProcessName;
+            Process[] result = Process.GetProcessesByName(name);
+            if (result.Length > 1)
+            {
+                MessageBox.Show("There is already a instance running.", "Information");
+                System.Environment.Exit(0);
+            }
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new Palette());
+            Application.Run(new MdiContainer());
         }
     }
 }

@@ -14,8 +14,10 @@ namespace InkNote
     {
         public FormNote activeNote = null;
         List<FormNote> notes = null;
-        NotifyIcon mNotifyIcon = null;
-        bool isClosing = false;
+        public bool isClosing = false;
+
+        //[BrowsableAttribute(false)]
+        protected override bool ShowWithoutActivation { get{ return true;} }
 
         public Palette()
         {
@@ -30,6 +32,7 @@ namespace InkNote
             foreach (string path in pathes)
             {
                 FormNote newNote = new FormNote(this, path);
+                newNote.MdiParent = this.MdiParent;
                 newNote.Show();
                 activeNote = newNote;
                 notes.Add(newNote);
@@ -37,44 +40,15 @@ namespace InkNote
             if (activeNote == null)
             {
                 FormNote newNote = new FormNote(this);
+                newNote.MdiParent = this.MdiParent;
                 newNote.Show();
                 activeNote = newNote;
                 notes.Add(newNote);
             }
 
-            // Create the NotifyIcon.
-            this.mNotifyIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            // The Icon property sets the icon that will appear
-            // in the systray for this application.
-            mNotifyIcon.Icon = global::InkNote.Properties.Resources.Icon1;
-
-            // The ContextMenu property sets the menu that will
-            // appear when the systray icon is right clicked.
-            mNotifyIcon.ContextMenuStrip = this.contextMenuStrip1;
-
-            // The Text property sets the text that will be displayed,
-            // in a tooltip, when the mouse hovers over the systray icon.
-            mNotifyIcon.Text = "InkNote";
-            mNotifyIcon.Visible = true;
-
-            mNotifyIcon.MouseClick += new MouseEventHandler(NotifyIcon_MouseClick);
-
         }
 
-        void NotifyIcon_MouseClick(object sender, MouseEventArgs e)
-        {
-            if (e.Button == System.Windows.Forms.MouseButtons.Left)
-            {
-                ActivatePaletteAndNotes();
-            }
-        }
-        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            isClosing = true;
-            this.Close();
-        }
-
-        private void ActivatePaletteAndNotes()
+        public void SetVisiblePaletteAndNotes()
         {
             foreach (FormNote note in notes)
             {
@@ -82,11 +56,6 @@ namespace InkNote
             }
 
             this.Visible = true;
-            this.Activate();
-        }
-        private void openToolStripMenuItem_Click(object sender, EventArgs e)
-        {
-            ActivatePaletteAndNotes();
         }
 
         private void Palette_FormClosed(object sender, FormClosedEventArgs e)
@@ -163,12 +132,11 @@ namespace InkNote
             foreach (FormNote note in notes)
             {
                 note.Save();
-                note.Visible = false;
             }
             if (isClosing == false)
             {
                 e.Cancel = true;
-                this.Visible = false;
+                this.MdiParent.WindowState = FormWindowState.Minimized;
             }
         }
 
@@ -322,10 +290,10 @@ namespace InkNote
         private void pictNew_Click(object sender, EventArgs e)
         {
             FormNote newNote = new FormNote(this);
+            newNote.MdiParent = this.MdiParent;
             newNote.Show();
             activeNote = newNote;
             notes.Add(newNote);
-            ActivatePaintingScreen();            
         }
 
         private void pictColor_Click(object sender, EventArgs e)

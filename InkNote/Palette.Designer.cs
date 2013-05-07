@@ -28,10 +28,6 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
-            this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.openToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.panelColorRed = new System.Windows.Forms.Panel();
             this.panelColorBlue = new System.Windows.Forms.Panel();
             this.panelColorYellow = new System.Windows.Forms.Panel();
@@ -53,7 +49,6 @@
             this.pictPick = new System.Windows.Forms.PictureBox();
             this.pictCleaner = new System.Windows.Forms.PictureBox();
             this.pictNew = new System.Windows.Forms.PictureBox();
-            this.contextMenuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictSelect)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictCopy)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictSave)).BeginInit();
@@ -70,28 +65,6 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictCleaner)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictNew)).BeginInit();
             this.SuspendLayout();
-            // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.exitToolStripMenuItem,
-            this.openToolStripMenuItem});
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(104, 48);
-            // 
-            // exitToolStripMenuItem
-            // 
-            this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.exitToolStripMenuItem.Text = "Exit";
-            this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
-            // 
-            // openToolStripMenuItem
-            // 
-            this.openToolStripMenuItem.Name = "openToolStripMenuItem";
-            this.openToolStripMenuItem.Size = new System.Drawing.Size(103, 22);
-            this.openToolStripMenuItem.Text = "Open";
-            this.openToolStripMenuItem.Click += new System.EventHandler(this.openToolStripMenuItem_Click);
             // 
             // panelColorRed
             // 
@@ -365,14 +338,12 @@
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
             this.Text = "Palette - InkNote";
-            this.TopMost = true;
             this.Activated += new System.EventHandler(this.Palette_Activated);
             this.Deactivate += new System.EventHandler(this.Palette_Deactivate);
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Palette_FormClosing);
             this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Palette_FormClosed);
             this.Load += new System.EventHandler(this.Palette_Load);
             this.VisibleChanged += new System.EventHandler(this.Palette_VisibleChanged);
-            this.contextMenuStrip1.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictSelect)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictCopy)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictSave)).EndInit();
@@ -416,9 +387,5 @@
         private System.Windows.Forms.PictureBox pictPick;
         private System.Windows.Forms.PictureBox pictCleaner;
         private System.Windows.Forms.PictureBox pictNew;
-
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
-        private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
     }
 }

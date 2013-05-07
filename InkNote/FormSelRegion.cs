@@ -39,8 +39,16 @@ namespace InkNote
         void mInkPicture_Stroke(object sender, InkCollectorStrokeEventArgs e)
         {
             e.Cancel = true;
-            mIsRegionClipped = false;
-            this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            if (mIsRegionClipped == false)
+            {
+                Console.WriteLine("mIsRegionClipped is false");
+                this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
+            }
+            else
+            {
+                Console.WriteLine("mIsRegionClipped is true");
+                this.DialogResult = System.Windows.Forms.DialogResult.OK;
+            }
             this.Close();
         }
 
@@ -72,16 +80,8 @@ namespace InkNote
                     path.AddClosedCurve(ptPath);
                     if (mSelRegion != null) mSelRegion.Dispose();
                     mSelRegion = new Region(path);
-
-                    SolidBrush b = new SolidBrush(Color.Red);
-                    Pen p = new Pen(b);
-                    p.Dispose();
-                    b.Dispose();
                     g.Dispose();
-                    mInkPicture.Refresh();
                     mIsRegionClipped = true;
-                    this.DialogResult = System.Windows.Forms.DialogResult.OK;
-                    this.Close();
                 }
                 catch (Exception ex)
                 {
