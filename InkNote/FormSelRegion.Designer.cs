@@ -13,11 +13,14 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing)
         {
+            System.Console.WriteLine("Dispose >>");
+            if (mSelRegion != null) mSelRegion.Dispose();
             if (disposing && (components != null))
             {
                 components.Dispose();
             }
             base.Dispose(disposing);
+            System.Console.WriteLine("<< Dispose");
         }
 
         #region Windows Form Designer generated code
@@ -28,6 +31,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormSelRegion));
             this.SuspendLayout();
             // 
             // FormSelRegion
@@ -36,10 +40,12 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(284, 262);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormSelRegion";
             this.Opacity = 0.3D;
             this.Text = "Form1";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormSelRegion_FormClosing);
             this.Load += new System.EventHandler(this.Form1_Load);
             this.ResumeLayout(false);
 

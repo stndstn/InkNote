@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Palette));
             this.panelColorRed = new System.Windows.Forms.Panel();
             this.panelColorBlue = new System.Windows.Forms.Panel();
             this.panelColorYellow = new System.Windows.Forms.Panel();
@@ -49,6 +50,7 @@
             this.pictPick = new System.Windows.Forms.PictureBox();
             this.pictCleaner = new System.Windows.Forms.PictureBox();
             this.pictNew = new System.Windows.Forms.PictureBox();
+            this.pictSelInk = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictSelect)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictCopy)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictSave)).BeginInit();
@@ -64,6 +66,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictPick)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictCleaner)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictNew)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictSelInk)).BeginInit();
             this.SuspendLayout();
             // 
             // panelColorRed
@@ -305,11 +308,24 @@
             this.pictNew.TabStop = false;
             this.pictNew.Click += new System.EventHandler(this.pictNew_Click);
             // 
+            // pictSelInk
+            // 
+            this.pictSelInk.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictSelInk.Image = global::InkNote.Properties.Resources.Image18;
+            this.pictSelInk.Location = new System.Drawing.Point(97, 37);
+            this.pictSelInk.Name = "pictSelInk";
+            this.pictSelInk.Size = new System.Drawing.Size(18, 18);
+            this.pictSelInk.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictSelInk.TabIndex = 22;
+            this.pictSelInk.TabStop = false;
+            this.pictSelInk.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictSelInk_MouseClick);
+            // 
             // Palette
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(192, 60);
+            this.Controls.Add(this.pictSelInk);
             this.Controls.Add(this.pictNew);
             this.Controls.Add(this.pictCleaner);
             this.Controls.Add(this.pictPick);
@@ -332,6 +348,7 @@
             this.Controls.Add(this.panelColorBlue);
             this.Controls.Add(this.panelColorRed);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
+            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.KeyPreview = true;
             this.MaximizeBox = false;
             this.Name = "Palette";
@@ -359,6 +376,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictPick)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictCleaner)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictNew)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictSelInk)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -387,5 +405,6 @@
         private System.Windows.Forms.PictureBox pictPick;
         private System.Windows.Forms.PictureBox pictCleaner;
         private System.Windows.Forms.PictureBox pictNew;
+        private System.Windows.Forms.PictureBox pictSelInk;
     }
 }

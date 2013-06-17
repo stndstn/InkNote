@@ -14,7 +14,7 @@ namespace InkNote
     {
 
         public InkPicture mInkPicture = null;
-        private bool mIsRegionClipped = false;
+        private DialogResult dlgRes = DialogResult.None;
         public Region SelRegion
         {
             get { return mSelRegion;}
@@ -32,33 +32,25 @@ namespace InkNote
             mInkPicture.NewPackets += new InkCollectorNewPacketsEventHandler(mInkPicture_NewPackets);
             mInkPicture.Stroke += new InkCollectorStrokeEventHandler(mInkPicture_Stroke);
             mInkPicture.DefaultDrawingAttributes.Color = Color.Blue;
-
-            this.Icon = Properties.Resources.Icon1;
         }
 
         void mInkPicture_Stroke(object sender, InkCollectorStrokeEventArgs e)
         {
-            e.Cancel = true;
-            if (mIsRegionClipped == false)
-            {
-                Console.WriteLine("mIsRegionClipped is false");
-                this.DialogResult = System.Windows.Forms.DialogResult.Cancel;
-            }
-            else
-            {
-                Console.WriteLine("mIsRegionClipped is true");
-                this.DialogResult = System.Windows.Forms.DialogResult.OK;
-            }
+            Console.WriteLine("mInkPicture_Stroke >>");
+            this.DialogResult = dlgRes;
             this.Close();
+            Console.WriteLine("<< mInkPicture_Stroke");
         }
 
         void mInkPicture_NewPackets(object sender, InkCollectorNewPacketsEventArgs e)
         {
+            Console.WriteLine("mInkPicture_NewPackets PacketCount={0}", e.PacketCount);
+            //if (this.DialogResult != System.Windows.Forms.DialogResult.None) return;
+            if (dlgRes != System.Windows.Forms.DialogResult.None) return;
+
             float[] intersections = e.Stroke.SelfIntersections;
             if (intersections.Length > 0)
             {
-                if (mIsRegionClipped) return;
-
                 String msg = "SelfIntersections=";
                 foreach (float f in intersections)
                 {
@@ -73,15 +65,21 @@ namespace InkNote
                     int count = ipt2 - ipt1;
                     Point[] pts = e.Stroke.GetPoints();
                     Point[] ptPath = new Point[count];
-                    Graphics g = Graphics.FromImage(mBgBmp);
+                    //Graphics g = Graphics.FromImage(mBgBmp);
+                    Graphics g = mInkPicture.CreateGraphics();
                     mInkPicture.Renderer.InkSpaceToPixel(g, ref pts);
                     Array.Copy(pts, ipt1, ptPath, 0, count);
-                    System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
-                    path.AddClosedCurve(ptPath);
-                    if (mSelRegion != null) mSelRegion.Dispose();
-                    mSelRegion = new Region(path);
+                    Pen p = new Pen(Color.Red);
+                    g.DrawPolygon(p, ptPath);
+                    dlgRes = MessageBox.Show("Clip and Copy this region?", "Selection", MessageBoxButtons.YesNoCancel);
+                    if (dlgRes == System.Windows.Forms.DialogResult.Yes)
+                    {
+                        System.Drawing.Drawing2D.GraphicsPath path = new System.Drawing.Drawing2D.GraphicsPath();
+                        path.AddClosedCurve(ptPath);
+                        if (mSelRegion != null) mSelRegion.Dispose();
+                        mSelRegion = new Region(path);
+                    }
                     g.Dispose();
-                    mIsRegionClipped = true;
                 }
                 catch (Exception ex)
                 {
@@ -89,27 +87,28 @@ namespace InkNote
                     Console.WriteLine(ex.StackTrace);
                 }
             }
-            else
-            {
-                mIsRegionClipped = false;
-            }
 
             //throw new NotImplementedException();
         }
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            Console.WriteLine("Form1_Load >>");
+
             mBgBmp = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
-            /*
-            Graphics g = Graphics.FromImage(mBgBmp);
-            Pen p = new Pen(Color.Green);
-            g.DrawLine(p, new Point(0, 0), new Point(this.ClientSize.Width, this.ClientSize.Height));
-            p.Dispose();
-            g.Dispose();
-             */
             mInkPicture.BackgroundImage = mBgBmp;
+            //mInkPicture.InkEnabled = true;
+            mInkPicture.Ink.DeleteStrokes();
+            mInkPicture.Refresh();
+            dlgRes = DialogResult.None;
+            Console.WriteLine("<< Form1_Load");
         }
-        
-        
+
+        private void FormSelRegion_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            Console.WriteLine("FormSelRegion_FormClosing >>");
+            if (mBgBmp != null) mBgBmp.Dispose();
+            Console.WriteLine("<< FormSelRegion_FormClosing");
+        }        
     }
 }

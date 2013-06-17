@@ -12,6 +12,8 @@ namespace InkNote
 {
     public partial class Palette : Form
     {
+        static public float DEFAULT_PEN_WIDTH;
+        static public float DEFAULT_PEN_HEIGHT;
         public FormNote activeNote = null;
         List<FormNote> notes = null;
         public bool isClosing = false;
@@ -192,8 +194,8 @@ namespace InkNote
         private void pictPenBallS_Click(object sender, EventArgs e)
         {
             if (activeNote == null) return;
-            activeNote.mInkPicture.DefaultDrawingAttributes.Width = 100;
-            activeNote.mInkPicture.DefaultDrawingAttributes.Height = 100;
+            activeNote.mInkPicture.DefaultDrawingAttributes.Width = DEFAULT_PEN_WIDTH;
+            activeNote.mInkPicture.DefaultDrawingAttributes.Height = DEFAULT_PEN_HEIGHT;
             activeNote.mInkPicture.DefaultDrawingAttributes.PenTip = PenTip.Ball;
             restoreInkMode();
             ActivatePaintingScreen();
@@ -263,13 +265,113 @@ namespace InkNote
             ActivatePaintingScreen();
         }
 
+        public void OnInkDrawMode()
+        {
+            pictCleaner.Visible = true;
+            pictColor.Visible = true;
+            pictCopy.Visible = true;
+            pictDelete.Visible = false;
+            pictErase.Visible = true;
+            pictGrid.Visible = true;
+            pictNew.Visible = true;
+            pictPenBallL.Visible = true;
+            pictPenBallS.Visible = true;
+            pictPenRectH.Visible = true;
+            pictPenRectV.Visible = true;
+            pictPick.Visible = true;
+            pictSave.Visible = true;
+            pictSelect.Visible = true;
+            pictSelInk.Visible = true;
+            pictUndo.Visible = true;
+        }
+
+        public void OnInkSelectMode()
+        {
+            pictCleaner.Visible = false;
+            pictColor.Visible = false;
+            pictCopy.Visible = true;
+            pictDelete.Visible = false;
+            pictErase.Visible = false;
+            pictGrid.Visible = true;
+            pictNew.Visible = true;
+            pictPenBallL.Visible = true;
+            pictPenBallS.Visible = true;
+            pictPenRectH.Visible = true;
+            pictPenRectV.Visible = true;
+            pictPick.Visible = true;
+            pictSave.Visible = true;
+            pictSelect.Visible = true;
+            pictSelInk.Visible = false;
+            pictUndo.Visible = false;
+        }
+
+        public void OnInkSelected()
+        {
+            pictCleaner.Visible = false;
+            pictColor.Visible = false;
+            pictCopy.Visible = false;
+            pictDelete.Visible = true;
+            pictErase.Visible = false;
+            pictGrid.Visible = false;
+            pictNew.Visible = false;
+            pictPenBallL.Visible = false;
+            pictPenBallS.Visible = false;
+            pictPenRectH.Visible = false;
+            pictPenRectV.Visible = false;
+            pictPick.Visible = false;
+            pictSave.Visible = false;
+            pictSelect.Visible = false;
+            pictSelInk.Visible = false;
+            pictUndo.Visible = false;
+        }
+
+        public void OnPickPictMode()
+        {
+            pictCleaner.Visible = false;
+            pictColor.Visible = false;
+            pictCopy.Visible = false;
+            pictDelete.Visible = false;
+            pictErase.Visible = false;
+            pictGrid.Visible = true;
+            pictNew.Visible = true;
+            pictPenBallL.Visible = true;
+            pictPenBallS.Visible = true;
+            pictPenRectH.Visible = true;
+            pictPenRectV.Visible = true;
+            pictPick.Visible = false;
+            pictSave.Visible = true;
+            pictSelect.Visible = true;
+            pictSelInk.Visible = true;
+            pictUndo.Visible = false;
+        }
+        
+        public void OnPictPicked()
+        {
+            pictCleaner.Visible = false;
+            pictColor.Visible = false;
+            pictCopy.Visible = true;
+            pictDelete.Visible = true;
+            pictErase.Visible = false;
+            pictGrid.Visible = false;
+            pictNew.Visible = false;
+            pictPenBallL.Visible = false;
+            pictPenBallS.Visible = false;
+            pictPenRectH.Visible = false;
+            pictPenRectV.Visible = false;
+            pictPick.Visible = false;
+            pictSave.Visible = false;
+            pictSelect.Visible = false;
+            pictSelInk.Visible = false;
+            pictUndo.Visible = true;
+        }
+
         private void restoreInkMode()
         {
             if (activeNote == null) return;
             activeNote.mInkPicture.InkEnabled = true;
             activeNote.mInkPicture.Enabled = true;
-            pictPick.Enabled = true;
             activeNote.mInkPicture.EditingMode = InkOverlayEditingMode.Ink;
+            OnInkDrawMode();
         }
 
         private void pictPick_Click(object sender, EventArgs e)
@@ -277,7 +379,7 @@ namespace InkNote
             if (activeNote == null) return;
             activeNote.mInkPicture.InkEnabled = false;
             activeNote.mInkPicture.Enabled = false;
-            ((PictureBox)sender).Enabled = false;
+            OnPickPictMode();
         }
 
         private void pictCleaner_Click(object sender, EventArgs e)
@@ -315,6 +417,15 @@ namespace InkNote
                 restoreInkMode();
                 ActivatePaintingScreen();
             }
+        }
+
+        private void pictSelInk_MouseClick(object sender, MouseEventArgs e)
+        {
+            if (activeNote == null) return;
+            activeNote.mInkPicture.Enabled = true;
+            activeNote.mInkPicture.InkEnabled = true;
+            activeNote.mInkPicture.EditingMode = InkOverlayEditingMode.Select;
+            OnInkSelectMode();
         }
 
     }

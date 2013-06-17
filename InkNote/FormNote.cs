@@ -70,6 +70,7 @@ namespace InkNote
         List<BitmapPosData> mBgBitmaps = new List<BitmapPosData>();
         string dataPath = string.Empty;
         Palette mFormPalette = null;
+        private Size mActivatedFormSize = new Size();
 
         public Color mBgColor = Color.Wheat;
         public string Path
@@ -88,10 +89,24 @@ namespace InkNote
             this.panel1.MouseMove += new MouseEventHandler(FormNote_MouseMove);
             this.panel1.MouseDown += new MouseEventHandler(FormNote_MouseDown);
             mInkPicture = new InkPicture();
+            Palette.DEFAULT_PEN_HEIGHT = mInkPicture.DefaultDrawingAttributes.Height;
+            Palette.DEFAULT_PEN_WIDTH = mInkPicture.DefaultDrawingAttributes.Width;
             this.panel1.Controls.Add(mInkPicture);
             mInkPicture.Dock = DockStyle.Fill;
             mBmpSize = this.ClientSize;
+            mInkPicture.SelectionChanged += new InkOverlaySelectionChangedEventHandler(mInkPicture_SelectionChanged);
+        }
 
+        void mInkPicture_SelectionChanged(object sender, EventArgs e)
+        {
+            if (mInkPicture.Selection.Count > 0)
+            {
+                mFormPalette.OnInkSelected();
+            }
+            else
+            {
+                mFormPalette.OnInkSelectMode();
+            }
         }
 
         Size DrawBmpToBg(BitmapPosData bmpdt, Image imgBg)
@@ -121,6 +136,7 @@ namespace InkNote
                         DrawBmpToBg(mMovingBmpData, mBmpBG);
                         mBgBitmaps.Add(mMovingBmpData);
                         mMovingBmpData = null;
+                        mFormPalette.OnPickPictMode();
                     }
                 }
                 else
@@ -138,15 +154,20 @@ namespace InkNote
                             }
                         }
 
-                        //rebuild background image
-                        DrawBackGroundImageAndGrid();
-                        //take snapshot of background except moving image
-                        if (mBmpTempBG != null)
+                        if (mIsTempPictMoving)
                         {
-                            mBmpTempBG.Dispose();
-                            mBmpTempBG = null;
+                            //rebuild background image
+                            DrawBackGroundImageAndGrid();
+                            //take snapshot of background except moving image
+                            if (mBmpTempBG != null)
+                            {
+                                mBmpTempBG.Dispose();
+                                mBmpTempBG = null;
+                            }
+                            mBmpTempBG = new Bitmap(mBmpBG);
+
+                            mFormPalette.OnPictPicked();
                         }
-                        mBmpTempBG = new Bitmap(mBmpBG);
                     }
                 }
             }
@@ -228,33 +249,43 @@ namespace InkNote
             {
                 c.Visible = false;
             }
-            FormSelRegion frm = new FormSelRegion();
-            DialogResult res = frm.ShowDialog();
-            Console.WriteLine("FormSelRegion.DialogResult is %s", res.ToString());
-            if (res == System.Windows.Forms.DialogResult.OK)
+            try
             {
-            Console.WriteLine("FormSelRegion.DialogResult==OK");
-                Region rg = frm.SelRegion;
-                CopyDesktopImageInClippedRegion(rg);
-                
-                //take snapshot of background except moving image
-                if (mBmpTempBG != null)
+                DialogResult res = System.Windows.Forms.DialogResult.Cancel;
+                FormSelRegion frm = new FormSelRegion();
+                do
                 {
-                    mBmpTempBG.Dispose();
-                    mBmpTempBG = null;
-                }
-                mBmpTempBG = new Bitmap(mBmpBG);
+                    res = frm.ShowDialog();
+                    Console.WriteLine("FormSelRegion.DialogResult is {0}", res.ToString());
+                } while (res == System.Windows.Forms.DialogResult.No);
+                if (res == System.Windows.Forms.DialogResult.Yes)
+                {
+                    Console.WriteLine("FormSelRegion.DialogResult==Yes");
+                    CopyDesktopImageInClippedRegion(frm.SelRegion);
 
-                foreach (Form c in this.MdiParent.MdiChildren)
-                {
-                    c.Visible = true;
+                    //take snapshot of background except moving image
+                    if (mBmpTempBG != null)
+                    {
+                        mBmpTempBG.Dispose();
+                        mBmpTempBG = null;
+                    }
+                    mBmpTempBG = new Bitmap(mBmpBG);
+
+                    foreach (Form c in this.MdiParent.MdiChildren)
+                    {
+                        c.Visible = true;
+                    }
+                    mIsTempPictMoving = true;
+                    this.Cursor = System.Windows.Forms.Cursors.Hand;
+                    this.mInkPicture.Enabled = false;
+                    this.mInkPicture.InkEnabled = false;
                 }
-                mIsTempPictMoving = true;
-                this.Cursor = System.Windows.Forms.Cursors.Hand;
-                this.mInkPicture.Enabled = false;
-                this.mInkPicture.InkEnabled = false;
+                this.Visible = true;
             }
-            this.Visible = true;
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
 
         private void FormNote_Load(object sender, EventArgs e)
@@ -268,6 +299,7 @@ namespace InkNote
             {
                 //new memo
                 DrawBackGroundImageAndGrid();
+                mActivatedFormSize = this.Size;
             }
         }
 
@@ -327,6 +359,7 @@ namespace InkNote
 
         public void LoadData(string path)
         {
+            Console.WriteLine("LoadData >>");
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             doc.Load(path);
             XmlNodeList dataNodes = doc.GetElementsByTagName("data");
@@ -433,7 +466,7 @@ namespace InkNote
                 DrawBmpToBg(bmpdt, mBmpBG);
 
             }
-
+            Console.WriteLine("<< LoadData");
         }
         public void Save()
         {
@@ -553,30 +586,48 @@ namespace InkNote
         private void FormNote_Activated(object sender, EventArgs e)
         {
             mFormPalette.activeNote = this;
-            //mFormPalette.MdiParent.WindowState = FormWindowState.Maximized;
             mFormPalette.MdiParent.Visible = true;
             mFormPalette.SetVisiblePaletteAndNotes();
 
-            Size sizePrev = this.Size;
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
-            Size sizeAfter = this.Size;
-            int dx = (sizeAfter.Width - sizePrev.Width) / 2;
-            int dy = sizeAfter.Height - sizePrev.Height - dx;
-            Point pt = this.Location;
-            pt.Offset(-dx, -dy);
-            this.Location = pt;
+            Console.WriteLine("FormNote_Activated");
+            if (this.FormBorderStyle != System.Windows.Forms.FormBorderStyle.SizableToolWindow)
+            {
+                Size sizePrev = this.Size;
+                Console.WriteLine("sizePrev w={0}, h={1}", sizePrev.Width, sizePrev.Height);
+                Size tempActivatedSize = mActivatedFormSize;
+                Console.WriteLine("tempActivatedSize w={0}, h={1}", tempActivatedSize.Width, tempActivatedSize.Height);
+                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.SizableToolWindow;
+                if (tempActivatedSize != Size.Empty)
+                {
+                    mActivatedFormSize = tempActivatedSize;
+                }
+                this.Size = mActivatedFormSize;
+                Size sizeAfter = this.Size;
+                Console.WriteLine("sizeAfter w={0}, h={1}", sizeAfter.Width, sizeAfter.Height);
+                int dx = (sizeAfter.Width - sizePrev.Width) / 2;
+                int dy = sizeAfter.Height - sizePrev.Height - dx;
+                Point pt = this.Location;
+                pt.Offset(-dx, -dy);
+                this.Location = pt;
+            }
         }
 
         private void FormNote_Deactivate(object sender, EventArgs e)
         {
-            Size sizePrev = this.Size;
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
-            Size sizeAfter = this.Size;
-            int dx = (sizePrev.Width - sizeAfter.Width) / 2;
-            int dy = sizePrev.Height - sizeAfter.Height - dx;
-            Point pt = this.Location;
-            pt.Offset(dx, dy);
-            this.Location = pt;
+            Console.WriteLine("FormNote_Deactivate");
+            if (this.FormBorderStyle != System.Windows.Forms.FormBorderStyle.None)
+            {
+                Size sizePrev = this.Size;
+                Console.WriteLine("sizePrev w={0}, h={1}", sizePrev.Width, sizePrev.Height);
+                this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+                Size sizeAfter = this.Size;
+                Console.WriteLine("sizeAfter w={0}, h={1}", sizeAfter.Width, sizeAfter.Height);
+                int dx = (sizePrev.Width - sizeAfter.Width) / 2;
+                int dy = sizePrev.Height - sizeAfter.Height - dx;
+                Point pt = this.Location;
+                pt.Offset(dx, dy);
+                this.Location = pt;
+            }
         }
 
         private void FormNote_FormClosing(object sender, FormClosingEventArgs e)
@@ -643,6 +694,17 @@ namespace InkNote
 
                 //rebuild background image
                 DrawBackGroundImageAndGrid();
+            }
+        }
+
+        private void FormNote_Resize(object sender, EventArgs e)
+        {
+            Console.WriteLine("FormNote_Resize");
+            if (this.FormBorderStyle == System.Windows.Forms.FormBorderStyle.SizableToolWindow)
+            {
+                mActivatedFormSize.Width = this.Width;
+                mActivatedFormSize.Height = this.Height;
+                Console.WriteLine(" new size w={0} h={1}", mActivatedFormSize.Width, mActivatedFormSize.Height);
             }
         }
     }
