@@ -21,6 +21,16 @@ namespace InkNote
         }
         Bitmap mBgBmp = null;
         Region mSelRegion = null;
+        Point[] mRegionPath = null;
+        public Point[] RegionPath
+        {
+            get { return mRegionPath; }
+        }
+        Point mOriginal = Point.Empty;
+        public Point OriginalPos
+        {
+            get { return mOriginal; }
+        }
 
         public FormSelRegion()
         {
@@ -44,7 +54,7 @@ namespace InkNote
 
         void mInkPicture_NewPackets(object sender, InkCollectorNewPacketsEventArgs e)
         {
-            Console.WriteLine("mInkPicture_NewPackets PacketCount={0}", e.PacketCount);
+            //Console.WriteLine("mInkPicture_NewPackets PacketCount={0}", e.PacketCount);
             //if (this.DialogResult != System.Windows.Forms.DialogResult.None) return;
             if (dlgRes != System.Windows.Forms.DialogResult.None) return;
 
@@ -78,6 +88,12 @@ namespace InkNote
                         path.AddClosedCurve(ptPath);
                         if (mSelRegion != null) mSelRegion.Dispose();
                         mSelRegion = new Region(path);
+                        RectangleF rect = mSelRegion.GetBounds(g);
+                        for(int i = 0; i < ptPath.Length; i++)
+                        {
+                            ptPath[i].Offset((int)-rect.X-1, (int)-rect.Y-1);
+                        }
+                        mRegionPath = ptPath;
                     }
                     g.Dispose();
                 }

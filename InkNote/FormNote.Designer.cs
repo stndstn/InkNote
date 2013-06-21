@@ -100,6 +100,7 @@
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FormNote_FormClosing);
             this.Load += new System.EventHandler(this.FormNote_Load);
             this.SizeChanged += new System.EventHandler(this.FormNote_SizeChanged);
+            this.VisibleChanged += new System.EventHandler(this.FormNote_VisibleChanged);
             this.KeyDown += new System.Windows.Forms.KeyEventHandler(this.FormNote_KeyDown);
             this.Resize += new System.EventHandler(this.FormNote_Resize);
             this.ResumeLayout(false);

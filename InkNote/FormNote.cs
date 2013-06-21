@@ -52,6 +52,8 @@ namespace InkNote
             public Region region;
             public Point location;
             public Bitmap bmp;
+            //public Point[] path;
+            //public Point original;
 
             public void Dispose()
             {
@@ -59,18 +61,25 @@ namespace InkNote
                 if (region != null) region.Dispose();
             }
         }
+        public bool IsImagePicked
+        {
+            get { return mIsImagePicked; }
+        }
 
         Bitmap mBmpBG = null;
         Bitmap mBmpTempBG = null;
-        bool mIsTempPictMoving = false;
-        Point mTempPictMoveOffset = Point.Empty;
-        BitmapPosData mMovingBmpData = null;
+        BitmapPosData mPickedBmpDataTmp = null;
+        bool mIsImagePicked = false;
+        Point mPickedImageOffset = Point.Empty;
+        BitmapPosData mPickedBmpData = null;
+        //BitmapPosData mPickedBmpDataBackup = null;
         public InkPicture mInkPicture = null;
         Size mBmpSize = Size.Empty;
         List<BitmapPosData> mBgBitmaps = new List<BitmapPosData>();
         string dataPath = string.Empty;
         Palette mFormPalette = null;
-        private Size mActivatedFormSize = new Size();
+        private Size mActivatedFormSize = Size.Empty;
+        public Point mPreviousLocation = Point.Empty;
 
         public Color mBgColor = Color.Wheat;
         public string Path
@@ -97,6 +106,46 @@ namespace InkNote
             mInkPicture.SelectionChanged += new InkOverlaySelectionChangedEventHandler(mInkPicture_SelectionChanged);
         }
 
+        public void setInkMode(Palette.MODE mode)
+        {
+            restoreInkMode(mode);
+        }
+        public void restoreInkMode(Palette.MODE mode)
+        {
+            switch (mode)
+            {
+                case Palette.MODE.INK_DRAW:
+                    mInkPicture.InkEnabled = true;
+                    mInkPicture.Enabled = true;
+                    mInkPicture.EditingMode = InkOverlayEditingMode.Ink;
+                    break;
+                case Palette.MODE.INK_SEL:
+                    mInkPicture.InkEnabled = true;
+                    mInkPicture.Enabled = true;
+                    mInkPicture.EditingMode = InkOverlayEditingMode.Select;
+                    break;
+                case Palette.MODE.INK_POINT_ERASE:
+                    mInkPicture.InkEnabled = true;
+                    mInkPicture.Enabled = true;
+                    mInkPicture.EditingMode = InkOverlayEditingMode.Delete;
+                    mInkPicture.EraserMode = InkOverlayEraserMode.PointErase;
+                    break;
+                case Palette.MODE.INK_STROKE_ERASE:
+                    mInkPicture.InkEnabled = true;
+                    mInkPicture.Enabled = true;
+                    mInkPicture.EditingMode = InkOverlayEditingMode.Delete;
+                    mInkPicture.EraserMode = InkOverlayEraserMode.StrokeErase;
+                    break;
+                case Palette.MODE.IMG_PICK:
+                    mInkPicture.InkEnabled = false;
+                    mInkPicture.Enabled = false;
+                    mInkPicture.EditingMode = InkOverlayEditingMode.Ink;
+                    break;
+                default:
+                    break;
+            }
+        }
+
         void mInkPicture_SelectionChanged(object sender, EventArgs e)
         {
             if (mInkPicture.Selection.Count > 0)
@@ -108,7 +157,7 @@ namespace InkNote
                 mFormPalette.OnInkSelectMode();
             }
         }
-
+        /*
         Size DrawBmpToBg(BitmapPosData bmpdt, Image imgBg)
         {
             Graphics g = Graphics.FromImage(imgBg);
@@ -120,23 +169,57 @@ namespace InkNote
             if (reqSize.Width > mBmpSize.Width) mBmpSize.Width = reqSize.Width;
             return reqSize;
         }
+         * */
+        Size DrawBmpToBg(BitmapPosData bmpdt, Image imgBg, byte alpha = (byte)255)
+        {
+            Graphics g = Graphics.FromImage(imgBg);
+            g.SetClip(bmpdt.region, System.Drawing.Drawing2D.CombineMode.Replace);
+            g.DrawImage(bmpdt.bmp, bmpdt.location);
+            g.Dispose();
+            Size reqSize = new Size(bmpdt.location.X + bmpdt.bmp.Width, bmpdt.location.Y + bmpdt.bmp.Height);
+            if (reqSize.Height > mBmpSize.Height) mBmpSize.Height = reqSize.Height;
+            if (reqSize.Width > mBmpSize.Width) mBmpSize.Width = reqSize.Width;
+            return reqSize;
+        }
+        public void CopyPickedImage()
+        {
+            if (mIsImagePicked)
+            {
+                //DrawBmpToBg(mPickedBmpDataBackup, mBmpBG);
+                BitmapPosData data = new BitmapPosData();
+                data.location = mPickedBmpData.location;
+                data.region = mPickedBmpData.region.Clone();
+                data.bmp = new Bitmap(mPickedBmpData.bmp);
+                mBgBitmaps.Add(data);
+                DrawBackGroundImageAndGrid();
+                if (mBmpTempBG != null)
+                {
+                    mBmpTempBG.Dispose();
+                    mBmpTempBG = null;
+                    mBmpTempBG = new Bitmap(mBmpBG);
+                    mInkPicture.BackgroundImage = mBmpTempBG;
+                }
+            }
+
+        }
         void FormNote_MouseDown(object sender, MouseEventArgs e)
         {
             Console.WriteLine("FormNote_MouseDown");
             if (e.Button == System.Windows.Forms.MouseButtons.Left)
             {
-                if (mIsTempPictMoving)
+                if (mIsImagePicked)
                 {
-                    mIsTempPictMoving = false;
-                    if (mMovingBmpData != null)
+                    mIsImagePicked = false;
+                    if (mPickedBmpData != null)
                     {
-                        mMovingBmpData.region.Translate(e.Location.X - (mMovingBmpData.location.X + mMovingBmpData.bmp.Width / 2), e.Location.Y - (mMovingBmpData.location.Y + mMovingBmpData.bmp.Height / 2));
-                        mMovingBmpData.location.X = e.Location.X - mMovingBmpData.bmp.Width / 2;
-                        mMovingBmpData.location.Y = e.Location.Y - mMovingBmpData.bmp.Height / 2;
-                        DrawBmpToBg(mMovingBmpData, mBmpBG);
-                        mBgBitmaps.Add(mMovingBmpData);
-                        mMovingBmpData = null;
-                        mFormPalette.OnPickPictMode();
+                        mPickedBmpData.region.Translate(e.Location.X - (mPickedBmpData.location.X + mPickedBmpData.bmp.Width / 2), e.Location.Y - (mPickedBmpData.location.Y + mPickedBmpData.bmp.Height / 2));
+                        mPickedBmpData.location.X = e.Location.X - mPickedBmpData.bmp.Width / 2;
+                        mPickedBmpData.location.Y = e.Location.Y - mPickedBmpData.bmp.Height / 2;
+                        DrawBmpToBg(mPickedBmpData, mBmpBG);
+                        this.mInkPicture.BackgroundImage = mBmpBG;
+                        mBgBitmaps.Add(mPickedBmpData);
+                        mPickedBmpData = null;
+                        mFormPalette.OnImagePickMode();
                     }
                 }
                 else
@@ -147,17 +230,36 @@ namespace InkNote
                         {
                             if (bmpData.region.IsVisible(e.Location))
                             {
-                                mMovingBmpData = bmpData;
-                                mIsTempPictMoving = true;
+                                mPickedBmpData = bmpData;
+                                mIsImagePicked = true;
                                 mBgBitmaps.Remove(bmpData);
+                                if (mPickedBmpDataTmp != null)
+                                {
+                                    mPickedBmpDataTmp.Dispose();
+                                    mPickedBmpDataTmp = null;
+                                }
+                                mPickedBmpDataTmp = new BitmapPosData();
+                                mPickedBmpDataTmp.location = mPickedBmpData.location;
+                                mPickedBmpDataTmp.region = mPickedBmpData.region.Clone();
+                                mPickedBmpDataTmp.bmp = new Bitmap(mPickedBmpData.bmp);
+                                for (int y = 0; y < mPickedBmpDataTmp.bmp.Height; y++)
+                                {
+                                    for (int x = 0; x < mPickedBmpDataTmp.bmp.Width; x++)
+                                    {
+                                        Color c = mPickedBmpDataTmp.bmp.GetPixel(x, y);
+                                        Color cc = Color.FromArgb(127, c.R, c.G, c.B);
+                                        mPickedBmpDataTmp.bmp.SetPixel(x, y, cc);
+                                    }
+                                }
                                 break;
                             }
                         }
 
-                        if (mIsTempPictMoving)
+                        if (mIsImagePicked)
                         {
                             //rebuild background image
                             DrawBackGroundImageAndGrid();
+                            /*
                             //take snapshot of background except moving image
                             if (mBmpTempBG != null)
                             {
@@ -165,8 +267,9 @@ namespace InkNote
                                 mBmpTempBG = null;
                             }
                             mBmpTempBG = new Bitmap(mBmpBG);
+                             */
 
-                            mFormPalette.OnPictPicked();
+                            mFormPalette.OnImagePicked();
                         }
                     }
                 }
@@ -175,21 +278,24 @@ namespace InkNote
 
         void FormNote_MouseMove(object sender, MouseEventArgs e)
         {
-            if (mIsTempPictMoving)
+            if (mIsImagePicked)
             {
                 Console.WriteLine("FormNote_MouseMove x:{0} y:{1} sender:{2}", e.Location.X, e.Location.Y, sender);
-                if ((e.Location.X + mMovingBmpData.bmp.Width / 2 < this.mInkPicture.Width)
-                 && (e.Location.X - mMovingBmpData.bmp.Width / 2 > this.mInkPicture.Location.X)
-                 && (e.Location.Y + mMovingBmpData.bmp.Height / 2 < this.mInkPicture.Height)
-                 && (e.Location.Y - mMovingBmpData.bmp.Height / 2 > this.mInkPicture.Location.Y)
+                if ((e.Location.X + mPickedBmpDataTmp.bmp.Width / 2 < this.mInkPicture.Width)
+                 && (e.Location.X - mPickedBmpDataTmp.bmp.Width / 2 > this.mInkPicture.Location.X)
+                 && (e.Location.Y + mPickedBmpDataTmp.bmp.Height / 2 < this.mInkPicture.Height)
+                 && (e.Location.Y - mPickedBmpDataTmp.bmp.Height / 2 > this.mInkPicture.Location.Y)
                     )
                 {
-                    mMovingBmpData.region.Translate(e.Location.X - (mMovingBmpData.location.X + mMovingBmpData.bmp.Width / 2), e.Location.Y - (mMovingBmpData.location.Y + mMovingBmpData.bmp.Height / 2));
-                    mMovingBmpData.location = new Point(e.Location.X - mMovingBmpData.bmp.Width / 2, e.Location.Y - mMovingBmpData.bmp.Height / 2);
-                    mBmpBG.Dispose();
-                    mBmpBG = new Bitmap(mBmpTempBG);
-                    DrawBmpToBg(mMovingBmpData, mBmpBG);
-                    this.mInkPicture.BackgroundImage = mBmpBG;
+                    mPickedBmpDataTmp.region.Translate(e.Location.X - (mPickedBmpDataTmp.location.X + mPickedBmpDataTmp.bmp.Width / 2), e.Location.Y - (mPickedBmpDataTmp.location.Y + mPickedBmpDataTmp.bmp.Height / 2));
+                    mPickedBmpDataTmp.location = new Point(e.Location.X - mPickedBmpDataTmp.bmp.Width / 2, e.Location.Y - mPickedBmpDataTmp.bmp.Height / 2);
+                    if (mBmpTempBG != null)
+                    {
+                        mBmpTempBG.Dispose();
+                    }
+                    mBmpTempBG = new Bitmap(mBmpBG);
+                    DrawBmpToBg(mPickedBmpDataTmp, mBmpTempBG, (byte)127);
+                    this.mInkPicture.BackgroundImage = mBmpTempBG;
                 }
             }
         }
@@ -227,10 +333,31 @@ namespace InkNote
                 gt.SetClip(rgnTempPict, System.Drawing.Drawing2D.CombineMode.Replace);
                 RectangleF rc2 = rg.GetBounds(gt);
                 gt.DrawImage(bmpDt, new Rectangle(0, 0, bmpClip.Width, bmpClip.Height), new Rectangle((int)rc.X, (int)rc.Y, (int)rc.Width, (int)rc.Height), GraphicsUnit.Pixel);
-                mMovingBmpData = new BitmapPosData();
-                mMovingBmpData.bmp = bmpClip;
-                mMovingBmpData.location = new Point(0, 0);
-                mMovingBmpData.region = rgnTempPict.Clone();
+                mPickedBmpData = new BitmapPosData();
+                mPickedBmpData.bmp = bmpClip;
+                mPickedBmpData.location = new Point(0, 0);
+                mPickedBmpData.region = rgnTempPict.Clone();
+
+                //temp image for moving (transparent) 
+                if (mPickedBmpDataTmp != null)
+                {
+                    mPickedBmpDataTmp.Dispose();
+                    mPickedBmpDataTmp = null;
+                }
+                mPickedBmpDataTmp = new BitmapPosData();
+                mPickedBmpDataTmp.location = mPickedBmpData.location;
+                mPickedBmpDataTmp.region = mPickedBmpData.region.Clone();
+                mPickedBmpDataTmp.bmp = new Bitmap(mPickedBmpData.bmp);
+                for (int y = 0; y < mPickedBmpDataTmp.bmp.Height; y++)
+                {
+                    for (int x = 0; x < mPickedBmpDataTmp.bmp.Width; x++)
+                    {
+                        Color c = mPickedBmpDataTmp.bmp.GetPixel(x, y);
+                        Color cc = Color.FromArgb(127, c.R, c.G, c.B);
+                        mPickedBmpDataTmp.bmp.SetPixel(x, y, cc);
+                    }
+                }
+
                 rgnTempPict.Dispose();
 
                 gd.Dispose();
@@ -263,22 +390,20 @@ namespace InkNote
                     Console.WriteLine("FormSelRegion.DialogResult==Yes");
                     CopyDesktopImageInClippedRegion(frm.SelRegion);
 
-                    //take snapshot of background except moving image
-                    if (mBmpTempBG != null)
-                    {
-                        mBmpTempBG.Dispose();
-                        mBmpTempBG = null;
-                    }
-                    mBmpTempBG = new Bitmap(mBmpBG);
-
                     foreach (Form c in this.MdiParent.MdiChildren)
                     {
                         c.Visible = true;
+                        if (c.GetType() == typeof(FormNote))
+                        {
+                            FormNote note = (FormNote)c;
+                            note.Location = note.mPreviousLocation;
+                        }
                     }
-                    mIsTempPictMoving = true;
+                    mIsImagePicked = true;
                     this.Cursor = System.Windows.Forms.Cursors.Hand;
                     this.mInkPicture.Enabled = false;
                     this.mInkPicture.InkEnabled = false;
+                    this.Activate();
                 }
                 this.Visible = true;
             }
@@ -305,6 +430,7 @@ namespace InkNote
 
         private void FormNote_SizeChanged(object sender, EventArgs e)
         {
+            Console.WriteLine("FormNote_SizeChanged Location x={0} y={1}", this.Location.X, this.Location.Y);
             DrawBackGroundImageAndGrid();
         }
 
@@ -571,7 +697,7 @@ namespace InkNote
             }
             else if (e.KeyCode == Keys.Delete)
             {
-                DeleteSelectedImage();
+                DeletePickedImage();
             }
             else if (e.Control && (e.KeyCode == Keys.S))
             {
@@ -585,11 +711,12 @@ namespace InkNote
 
         private void FormNote_Activated(object sender, EventArgs e)
         {
-            mFormPalette.activeNote = this;
+            mFormPalette.mActiveNote = this;
             mFormPalette.MdiParent.Visible = true;
             mFormPalette.SetVisiblePaletteAndNotes();
 
             Console.WriteLine("FormNote_Activated");
+            Console.WriteLine("Location x={0}, y={1}", this.Location.X, this.Location.Y);
             if (this.FormBorderStyle != System.Windows.Forms.FormBorderStyle.SizableToolWindow)
             {
                 Size sizePrev = this.Size;
@@ -607,14 +734,17 @@ namespace InkNote
                 int dx = (sizeAfter.Width - sizePrev.Width) / 2;
                 int dy = sizeAfter.Height - sizePrev.Height - dx;
                 Point pt = this.Location;
+                Console.WriteLine("Location x={0}, y={1}", this.Location.X, this.Location.Y);
                 pt.Offset(-dx, -dy);
                 this.Location = pt;
+                Console.WriteLine("Location x={0}, y={1}", this.Location.X, this.Location.Y);
             }
         }
 
         private void FormNote_Deactivate(object sender, EventArgs e)
         {
             Console.WriteLine("FormNote_Deactivate");
+            Console.WriteLine("Location x={0}, y={1}", this.Location.X, this.Location.Y);
             if (this.FormBorderStyle != System.Windows.Forms.FormBorderStyle.None)
             {
                 Size sizePrev = this.Size;
@@ -625,8 +755,10 @@ namespace InkNote
                 int dx = (sizePrev.Width - sizeAfter.Width) / 2;
                 int dy = sizePrev.Height - sizeAfter.Height - dx;
                 Point pt = this.Location;
+                Console.WriteLine("Location x={0}, y={1}", this.Location.X, this.Location.Y);
                 pt.Offset(dx, dy);
                 this.Location = pt;
+                Console.WriteLine("Location x={0}, y={1}", this.Location.X, this.Location.Y);
             }
         }
 
@@ -680,16 +812,16 @@ namespace InkNote
             }
         }
 
-        public void DeleteSelectedImage()
+        public void DeletePickedImage()
         {
-            if (mIsTempPictMoving)
+            if (mIsImagePicked)
             {
-                mIsTempPictMoving = false;
+                mIsImagePicked = false;
                 //dispose selected image
-                if (mMovingBmpData != null)
+                if (mPickedBmpData != null)
                 {
-                    mMovingBmpData.Dispose();
-                    mMovingBmpData = null;
+                    mPickedBmpData.Dispose();
+                    mPickedBmpData = null;
                 }
 
                 //rebuild background image
@@ -699,7 +831,7 @@ namespace InkNote
 
         private void FormNote_Resize(object sender, EventArgs e)
         {
-            Console.WriteLine("FormNote_Resize");
+            Console.WriteLine("FormNote_Resize Location x={0} y={1}", this.Location.X, this.Location.Y);
             if (this.FormBorderStyle == System.Windows.Forms.FormBorderStyle.SizableToolWindow)
             {
                 mActivatedFormSize.Width = this.Width;
@@ -707,5 +839,12 @@ namespace InkNote
                 Console.WriteLine(" new size w={0} h={1}", mActivatedFormSize.Width, mActivatedFormSize.Height);
             }
         }
+
+        private void FormNote_VisibleChanged(object sender, EventArgs e)
+        {
+            if (this.Visible == false)
+                mPreviousLocation = this.Location;
+        }
+
     }
 }
