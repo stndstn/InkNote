@@ -51,6 +51,7 @@
             this.pictCleaner = new System.Windows.Forms.PictureBox();
             this.pictNew = new System.Windows.Forms.PictureBox();
             this.pictSelInk = new System.Windows.Forms.PictureBox();
+            this.pictPaste = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictSelect)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictCopy)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictSave)).BeginInit();
@@ -67,6 +68,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictCleaner)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictNew)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictSelInk)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictPaste)).BeginInit();
             this.SuspendLayout();
             // 
             // panelColorRed
@@ -133,7 +135,7 @@
             // 
             this.pictSelect.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictSelect.Image = global::InkNote.Properties.Resources.Image7;
-            this.pictSelect.Location = new System.Drawing.Point(59, 18);
+            this.pictSelect.Location = new System.Drawing.Point(78, 18);
             this.pictSelect.Name = "pictSelect";
             this.pictSelect.Size = new System.Drawing.Size(18, 18);
             this.pictSelect.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -217,7 +219,7 @@
             // 
             this.pictDelete.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictDelete.Image = global::InkNote.Properties.Resources.Image8;
-            this.pictDelete.Location = new System.Drawing.Point(78, 18);
+            this.pictDelete.Location = new System.Drawing.Point(97, 18);
             this.pictDelete.Name = "pictDelete";
             this.pictDelete.Size = new System.Drawing.Size(18, 18);
             this.pictDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -229,7 +231,7 @@
             // 
             this.pictGrid.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictGrid.Image = global::InkNote.Properties.Resources.Image9;
-            this.pictGrid.Location = new System.Drawing.Point(97, 18);
+            this.pictGrid.Location = new System.Drawing.Point(116, 18);
             this.pictGrid.Name = "pictGrid";
             this.pictGrid.Size = new System.Drawing.Size(18, 18);
             this.pictGrid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -241,7 +243,7 @@
             // 
             this.pictUndo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictUndo.Image = global::InkNote.Properties.Resources.Image10;
-            this.pictUndo.Location = new System.Drawing.Point(116, 18);
+            this.pictUndo.Location = new System.Drawing.Point(135, 18);
             this.pictUndo.Name = "pictUndo";
             this.pictUndo.Size = new System.Drawing.Size(18, 18);
             this.pictUndo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -264,7 +266,7 @@
             // 
             this.pictErase.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictErase.Image = global::InkNote.Properties.Resources.Image12;
-            this.pictErase.Location = new System.Drawing.Point(135, 18);
+            this.pictErase.Location = new System.Drawing.Point(154, 18);
             this.pictErase.Name = "pictErase";
             this.pictErase.Size = new System.Drawing.Size(18, 18);
             this.pictErase.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -288,7 +290,7 @@
             // 
             this.pictCleaner.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictCleaner.Image = global::InkNote.Properties.Resources.Image14;
-            this.pictCleaner.Location = new System.Drawing.Point(154, 18);
+            this.pictCleaner.Location = new System.Drawing.Point(173, 18);
             this.pictCleaner.Name = "pictCleaner";
             this.pictCleaner.Size = new System.Drawing.Size(18, 18);
             this.pictCleaner.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -320,11 +322,24 @@
             this.pictSelInk.TabStop = false;
             this.pictSelInk.MouseClick += new System.Windows.Forms.MouseEventHandler(this.pictSelInk_MouseClick);
             // 
+            // pictPaste
+            // 
+            this.pictPaste.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictPaste.Image = global::InkNote.Properties.Resources.image19;
+            this.pictPaste.Location = new System.Drawing.Point(59, 18);
+            this.pictPaste.Name = "pictPaste";
+            this.pictPaste.Size = new System.Drawing.Size(18, 18);
+            this.pictPaste.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.pictPaste.TabIndex = 23;
+            this.pictPaste.TabStop = false;
+            this.pictPaste.Click += new System.EventHandler(this.pictPaste_Click);
+            // 
             // Palette
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(192, 60);
+            this.Controls.Add(this.pictPaste);
             this.Controls.Add(this.pictSelInk);
             this.Controls.Add(this.pictNew);
             this.Controls.Add(this.pictCleaner);
@@ -377,6 +392,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictCleaner)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictNew)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictSelInk)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictPaste)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -406,5 +422,6 @@
         private System.Windows.Forms.PictureBox pictCleaner;
         private System.Windows.Forms.PictureBox pictNew;
         private System.Windows.Forms.PictureBox pictSelInk;
+        private System.Windows.Forms.PictureBox pictPaste;
     }
 }

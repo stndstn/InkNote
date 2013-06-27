@@ -12,9 +12,9 @@ namespace InkNote
 {
     public partial class FormSelRegion : Form
     {
-
         public InkPicture mInkPicture = null;
         private DialogResult dlgRes = DialogResult.None;
+        public BitmapPosData mSelectedBitmapData = null;
         public Region SelRegion
         {
             get { return mSelRegion;}
@@ -81,6 +81,7 @@ namespace InkNote
                     Array.Copy(pts, ipt1, ptPath, 0, count);
                     Pen p = new Pen(Color.Red);
                     g.DrawPolygon(p, ptPath);
+
                     dlgRes = MessageBox.Show("Clip and Copy this region?", "Selection", MessageBoxButtons.YesNoCancel);
                     if (dlgRes == System.Windows.Forms.DialogResult.Yes)
                     {
@@ -88,14 +89,10 @@ namespace InkNote
                         path.AddClosedCurve(ptPath);
                         if (mSelRegion != null) mSelRegion.Dispose();
                         mSelRegion = new Region(path);
-                        RectangleF rect = mSelRegion.GetBounds(g);
-                        for(int i = 0; i < ptPath.Length; i++)
-                        {
-                            ptPath[i].Offset((int)-rect.X-1, (int)-rect.Y-1);
-                        }
                         mRegionPath = ptPath;
                     }
                     g.Dispose();
+
                 }
                 catch (Exception ex)
                 {
@@ -103,8 +100,6 @@ namespace InkNote
                     Console.WriteLine(ex.StackTrace);
                 }
             }
-
-            //throw new NotImplementedException();
         }
 
         private void Form1_Load(object sender, EventArgs e)
@@ -112,8 +107,7 @@ namespace InkNote
             Console.WriteLine("Form1_Load >>");
 
             mBgBmp = new Bitmap(this.ClientSize.Width, this.ClientSize.Height);
-            mInkPicture.BackgroundImage = mBgBmp;
-            //mInkPicture.InkEnabled = true;
+            mInkPicture.BackgroundImage = mBgBmp;            //mInkPicture.InkEnabled = true;
             mInkPicture.Ink.DeleteStrokes();
             mInkPicture.Refresh();
             dlgRes = DialogResult.None;
@@ -124,7 +118,15 @@ namespace InkNote
         {
             Console.WriteLine("FormSelRegion_FormClosing >>");
             if (mBgBmp != null) mBgBmp.Dispose();
+            if (mSelectedBitmapData != null) mSelectedBitmapData.Dispose();
             Console.WriteLine("<< FormSelRegion_FormClosing");
-        }        
+        }
+
+        public void Dispose()
+        {
+            Console.WriteLine("FormSelRegion.Dispose() >>");
+            base.Dispose();
+            Console.WriteLine("<< FormSelRegion.Dispose()");
+        }
     }
 }

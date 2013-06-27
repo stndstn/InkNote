@@ -33,6 +33,13 @@ namespace InkNote
         public float mHeight;
         public PenTip mPenTip;
 
+        public bool IsImageCopied
+        {
+            get { return (mCopiedBmpData==null ? false : true); }
+        }
+
+        public BitmapPosData mCopiedBmpData = null;
+
         //[BrowsableAttribute(false)]
         protected override bool ShowWithoutActivation { get{ return true;} }
 
@@ -67,6 +74,9 @@ namespace InkNote
             mHeight = mActiveNote.mInkPicture.DefaultDrawingAttributes.Height;
             mPenTip = mActiveNote.mInkPicture.DefaultDrawingAttributes.PenTip;
 
+            mMode = MODE.INK_DRAW;
+            mActiveNote.setInkMode(mMode);
+            OnInkDrawMode();
         }
 
         public void SetVisiblePaletteAndNotes()
@@ -184,7 +194,7 @@ namespace InkNote
         {
             if (mActiveNote == null) return;
             mActiveNote.Save();
-            mActiveNote.restoreInkMode(mMode);
+            mActiveNote.setInkMode(mMode);
             ActivatePaintingScreen();
         }
 
@@ -193,12 +203,19 @@ namespace InkNote
             if (mActiveNote == null) return;
             if (mActiveNote.IsImagePicked)
             {
-                mActiveNote.CopyPickedImage();
+                //DrawBmpToBg(mPickedBmpDataBackup, mBmpBG);
+                if (mCopiedBmpData != null)
+                {
+                    mCopiedBmpData.Dispose();
+                    mCopiedBmpData = null;
+                }
+                mCopiedBmpData = new BitmapPosData(mActiveNote.mPickedBmpDataRef);
+                pictPaste.Visible = true;
             }
             else
             {
                 mActiveNote.CopyToClipboard();
-                mActiveNote.restoreInkMode(mMode);
+                mActiveNote.setInkMode(mMode);
                 ActivatePaintingScreen();
             }
         }
@@ -206,9 +223,131 @@ namespace InkNote
         private void pictSelect_Click(object sender, EventArgs e)
         {
             if (mActiveNote == null) return;
-            mActiveNote.SelPict();
+            SelPict();
         }
 
+        public void SelPict()
+        {
+            Console.WriteLine("SelPict");
+            //this.Visible = false;
+            foreach (Form c in this.MdiParent.MdiChildren)
+            {
+                c.Visible = false;
+            }
+            try
+            {
+                DialogResult res = System.Windows.Forms.DialogResult.Cancel;
+                FormSelRegion frm = new FormSelRegion();
+                do
+                {
+                    res = frm.ShowDialog();
+                    Console.WriteLine("FormSelRegion.DialogResult is {0}", res.ToString());
+                } while (res == System.Windows.Forms.DialogResult.No);
+                if (res == System.Windows.Forms.DialogResult.Yes)
+                {
+                    Console.WriteLine("FormSelRegion.DialogResult==Yes");
+                    if (mCopiedBmpData != null)
+                    {
+                        mCopiedBmpData.Dispose();
+                        mCopiedBmpData = null;
+                    }
+                    System.Threading.Thread.Sleep(500);
+                    mCopiedBmpData = BitmapPosData.CreateFromDesktopImageInClippedRegion(frm.SelRegion, frm.RegionPath);
+                    //mCopiedBmpData = new BitmapPosData(frm.mSelectedBitmapData);
+                    foreach (Form c in this.MdiParent.MdiChildren)
+                    {
+                        c.Visible = true;
+                        if (c.GetType() == typeof(FormNote))
+                        {
+                            FormNote note = (FormNote)c;
+                            note.Location = note.mPreviousLocation;
+                        }
+                    }
+                    this.Cursor = System.Windows.Forms.Cursors.Hand;
+                    mActiveNote.mInkPicture.Enabled = false;
+                    mActiveNote.mInkPicture.InkEnabled = false;
+                    mActiveNote.Activate();
+                    mActiveNote.CopyPickedImage(mCopiedBmpData);
+                    mMode = MODE.IMG_PICK;
+                    mActiveNote.setInkMode(mMode);
+                }
+                this.Visible = true;
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+#if false
+        public void CopyDesktopImageInClippedRegion(Region rg, Point[] ptPath)
+        {
+            Console.WriteLine("CopyDesktopImageToClippedRegion");
+
+            int screenX;
+            int screenY;
+            IntPtr hBmp;
+            IntPtr hdcScreen = GetDC(GetDesktopWindow());
+            IntPtr hdcCompatible = CreateCompatibleDC(hdcScreen);
+
+            screenX = GetSystemMetrics(0);
+            screenY = GetSystemMetrics(1);
+            hBmp = CreateCompatibleBitmap(hdcScreen, screenX, screenY);
+
+            if (hBmp != IntPtr.Zero)
+            {
+                IntPtr hOldBmp = (IntPtr)SelectObject(hdcCompatible, hBmp);
+                BitBlt(hdcCompatible, 0, 0, screenX, screenY, hdcScreen, 0, 0, 13369376);
+
+                SelectObject(hdcCompatible, hOldBmp);
+                DeleteDC(hdcCompatible);
+                ReleaseDC(GetDesktopWindow(), hdcScreen);
+
+                Bitmap bmpDt = System.Drawing.Image.FromHbitmap(hBmp);
+                Graphics gd = Graphics.FromImage(bmpDt);
+                RectangleF rc = rg.GetBounds(gd);
+                Bitmap bmpClip = new Bitmap((int)rc.Width, (int)rc.Height);
+                Graphics gt = Graphics.FromImage(bmpClip);
+                Region rgnTempPict = rg.Clone();
+                rgnTempPict.Translate(-rc.X, -rc.Y);
+                gt.SetClip(rgnTempPict, System.Drawing.Drawing2D.CombineMode.Replace);
+                RectangleF rc2 = rg.GetBounds(gt);
+                gt.DrawImage(bmpDt, new Rectangle(0, 0, bmpClip.Width, bmpClip.Height), new Rectangle((int)rc.X, (int)rc.Y, (int)rc.Width, (int)rc.Height), GraphicsUnit.Pixel);
+                for (int i = 0; i < ptPath.Length; i++)
+                {
+                    ptPath[i].Offset((int)-rc.X, (int)-rc.Y);
+                }
+                mCopiedBmpData = new FormNote.BitmapPosData(bmpClip, rgnTempPict.Clone(), new Point(0, 0), ptPath);
+                /*
+                //temp image for moving (transparent) 
+                if (mPickedBmpDataTmp != null)
+                {
+                    mPickedBmpDataTmp.Dispose();
+                    mPickedBmpDataTmp = null;
+                }
+                mPickedBmpDataTmp = new BitmapPosData();
+                mPickedBmpDataTmp.location = mPickedBmpData.location;
+                mPickedBmpDataTmp.region = mPickedBmpData.region.Clone();
+                mPickedBmpDataTmp.bmp = new Bitmap(mPickedBmpData.bmp);
+                for (int y = 0; y < mPickedBmpDataTmp.bmp.Height; y++)
+                {
+                    for (int x = 0; x < mPickedBmpDataTmp.bmp.Width; x++)
+                    {
+                        Color c = mPickedBmpDataTmp.bmp.GetPixel(x, y);
+                        Color cc = Color.FromArgb(127, c.R, c.G, c.B);
+                        mPickedBmpDataTmp.bmp.SetPixel(x, y, cc);
+                    }
+                }
+                */
+                rgnTempPict.Dispose();
+
+                gd.Dispose();
+                gt.Dispose();
+
+                DeleteObject(hBmp);
+                GC.Collect();
+            }
+        }
+#endif
         public void deleteNote(FormNote note)
         {
             mNotes.Remove(note);
@@ -221,11 +360,16 @@ namespace InkNote
         {
             if (mActiveNote != null)
             {
+                SendKeys.Send("{DELETE}");
                 if (mMode == MODE.IMG_PICK)
                 {
-                    mActiveNote.DeletePickedImage();
+                    //mActiveNote.DeletePickedImage();
                 }
-                mActiveNote.restoreInkMode(mMode);
+                else if (mMode == MODE.INK_SEL)
+                {
+                    //mActiveNote.DeleteSelectedStrokes();
+                }
+                //mActiveNote.setInkMode(mMode);
             }
             ActivatePaintingScreen();
         }
@@ -306,7 +450,7 @@ namespace InkNote
         {
             if (mActiveNote == null) return;
             mActiveNote.Undo();
-            mActiveNote.restoreInkMode(mMode);
+            mActiveNote.setInkMode(mMode);
             ActivatePaintingScreen();
         }
 
@@ -329,7 +473,6 @@ namespace InkNote
             pictColor.Visible = true;
             pictCleaner.Visible = true;
             pictCopy.Visible = true;
-            pictDelete.Visible = false;
             pictErase.Visible = true;
             pictGrid.Visible = true;
             pictNew.Visible = true;
@@ -342,6 +485,7 @@ namespace InkNote
             pictSelect.Visible = true;
             pictSelInk.Visible = true;
             pictUndo.Visible = true;
+            UpdateButtonVisibleByCondition();
         }
 
         public void OnInkEraseStrokeMode()
@@ -355,7 +499,6 @@ namespace InkNote
             pictColor.Visible = true;
             pictCleaner.Visible = true;
             pictCopy.Visible = true;
-            pictDelete.Visible = false;
             pictErase.Visible = false;
             pictGrid.Visible = true;
             pictNew.Visible = true;
@@ -368,6 +511,7 @@ namespace InkNote
             pictSelect.Visible = true;
             pictSelInk.Visible = true;
             pictUndo.Visible = true;
+            UpdateButtonVisibleByCondition();
         }
 
         public void OnInkErasePointMode()
@@ -381,7 +525,6 @@ namespace InkNote
             pictColor.Visible = true;
             pictCleaner.Visible = false;
             pictCopy.Visible = true;
-            pictDelete.Visible = false;
             pictErase.Visible = true;
             pictGrid.Visible = true;
             pictNew.Visible = true;
@@ -394,6 +537,7 @@ namespace InkNote
             pictSelect.Visible = true;
             pictSelInk.Visible = true;
             pictUndo.Visible = true;
+            UpdateButtonVisibleByCondition();
         }
 
         public void OnInkSelectMode()
@@ -401,7 +545,6 @@ namespace InkNote
             pictCleaner.Visible = false;
             pictColor.Visible = false;
             pictCopy.Visible = true;
-            pictDelete.Visible = false;
             pictErase.Visible = false;
             pictGrid.Visible = true;
             pictNew.Visible = true;
@@ -414,6 +557,7 @@ namespace InkNote
             pictSelect.Visible = true;
             pictSelInk.Visible = false;
             pictUndo.Visible = false;
+            UpdateButtonVisibleByCondition();
         }
 
         public void OnInkSelected()
@@ -427,7 +571,6 @@ namespace InkNote
             pictColor.Visible = false;
             pictCleaner.Visible = false;
             pictCopy.Visible = false;
-            pictDelete.Visible = true;
             pictErase.Visible = false;
             pictGrid.Visible = false;
             pictNew.Visible = false;
@@ -440,6 +583,7 @@ namespace InkNote
             pictSelect.Visible = false;
             pictSelInk.Visible = false;
             pictUndo.Visible = false;
+            UpdateButtonVisibleByCondition();
         }
 
         public void OnImagePickMode()
@@ -453,7 +597,6 @@ namespace InkNote
             pictColor.Visible = false;
             pictCleaner.Visible = true;
             pictCopy.Visible = true;
-            pictDelete.Visible = true;
             pictErase.Visible = true;
             pictGrid.Visible = true;
             pictNew.Visible = true;
@@ -466,6 +609,7 @@ namespace InkNote
             pictSelect.Visible = true;
             pictSelInk.Visible = true;
             pictUndo.Visible = false;
+            UpdateButtonVisibleByCondition();
         }
         
         public void OnImagePicked()
@@ -479,7 +623,6 @@ namespace InkNote
             pictColor.Visible = false;
             pictCleaner.Visible = false;
             pictCopy.Visible = true;
-            pictDelete.Visible = true;
             pictErase.Visible = false;
             pictGrid.Visible = false;
             pictNew.Visible = false;
@@ -492,6 +635,24 @@ namespace InkNote
             pictSelect.Visible = false;
             pictSelInk.Visible = false;
             pictUndo.Visible = false;
+            UpdateButtonVisibleByCondition();
+        }
+
+        private void UpdateButtonVisibleByCondition()
+        {
+            pictPaste.Visible = (mCopiedBmpData == null) ? false : true;
+
+            if (mActiveNote != null
+                && (mActiveNote.mPickedBmpDataRef != null
+                    || mActiveNote.mInkPicture.Selection.Count > 0)
+                )
+            {
+                pictDelete.Visible = true;
+            }
+            else
+            {
+                pictDelete.Visible = false;
+            }
         }
 
         private void pictPick_Click(object sender, EventArgs e)
@@ -555,10 +716,18 @@ namespace InkNote
             mMode = MODE.INK_SEL;
             UpdateDrawingAttributesAndModeOfNotes();
             ActivatePaintingScreen();
-            //mActiveNote.mInkPicture.Enabled = true;
-            //mActiveNote.mInkPicture.InkEnabled = true;
-            //mActiveNote.mInkPicture.EditingMode = InkOverlayEditingMode.Select;
             OnInkSelectMode();
+        }
+
+        private void pictPaste_Click(object sender, EventArgs e)
+        {
+            if (mActiveNote == null) return;
+            if (IsImageCopied)
+            {
+                mActiveNote.CopyPickedImage(mCopiedBmpData);
+                mMode = MODE.IMG_PICK;
+                mActiveNote.setInkMode(mMode);
+            }
         }
 
     }
