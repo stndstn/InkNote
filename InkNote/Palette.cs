@@ -52,15 +52,22 @@ namespace InkNote
         {
             mNotes = new List<FormNote>();
             string dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
-            string[] pathes = System.IO.Directory.GetFiles(dirPath, "*.ikn");
-            foreach (string path in pathes)
+            try
             {
-                FormNote newNote = new FormNote(this, path);
-                newNote.MdiParent = this.MdiParent;
-                newNote.Show();
-                mActiveNote = newNote;
-                mNotes.Add(newNote);
+                string[] pathes = System.IO.Directory.GetFiles(dirPath, "*.ikn");
+                foreach (string path in pathes)
+                {
+                    FormNote newNote = new FormNote(this, path);
+                    newNote.MdiParent = this.MdiParent;
+                    newNote.Show();
+                    mActiveNote = newNote;
+                    mNotes.Add(newNote);
+                }
             }
+            catch (Exception ex)
+            {
+            }
+
             if (mActiveNote == null)
             {
                 FormNote newNote = new FormNote(this);
@@ -253,24 +260,21 @@ namespace InkNote
                     }
                     System.Threading.Thread.Sleep(500);
                     mCopiedBmpData = BitmapPosData.CreateFromDesktopImageInClippedRegion(frm.SelRegion, frm.RegionPath);
-                    //mCopiedBmpData = new BitmapPosData(frm.mSelectedBitmapData);
-                    foreach (Form c in this.MdiParent.MdiChildren)
-                    {
-                        c.Visible = true;
-                        if (c.GetType() == typeof(FormNote))
-                        {
-                            FormNote note = (FormNote)c;
-                            note.Location = note.mPreviousLocation;
-                        }
-                    }
-                    this.Cursor = System.Windows.Forms.Cursors.Hand;
-                    mActiveNote.mInkPicture.Enabled = false;
-                    mActiveNote.mInkPicture.InkEnabled = false;
-                    mActiveNote.Activate();
                     mActiveNote.CopyPickedImage(mCopiedBmpData);
                     mMode = MODE.IMG_PICK;
                     mActiveNote.setInkMode(mMode);
                 }
+                foreach (Form c in this.MdiParent.MdiChildren)
+                {
+                    c.Visible = true;
+                    if (c.GetType() == typeof(FormNote))
+                    {
+                        FormNote note = (FormNote)c;
+                        note.Location = note.mPreviousLocation;
+                    }
+                }
+                this.Cursor = System.Windows.Forms.Cursors.Hand;
+                mActiveNote.Activate();
                 this.Visible = true;
             }
             catch (Exception e)
