@@ -266,7 +266,7 @@
             // 
             this.pictErase.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictErase.Image = global::InkNote.Properties.Resources.Image12;
-            this.pictErase.Location = new System.Drawing.Point(154, 18);
+            this.pictErase.Location = new System.Drawing.Point(116, 37);
             this.pictErase.Name = "pictErase";
             this.pictErase.Size = new System.Drawing.Size(18, 18);
             this.pictErase.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -290,7 +290,7 @@
             // 
             this.pictCleaner.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictCleaner.Image = global::InkNote.Properties.Resources.Image14;
-            this.pictCleaner.Location = new System.Drawing.Point(173, 18);
+            this.pictCleaner.Location = new System.Drawing.Point(135, 37);
             this.pictCleaner.Name = "pictCleaner";
             this.pictCleaner.Size = new System.Drawing.Size(18, 18);
             this.pictCleaner.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -338,7 +338,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(192, 60);
+            this.ClientSize = new System.Drawing.Size(158, 60);
             this.Controls.Add(this.pictPaste);
             this.Controls.Add(this.pictSelInk);
             this.Controls.Add(this.pictNew);

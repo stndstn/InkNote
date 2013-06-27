@@ -65,6 +65,12 @@ namespace InkNote
             mInkPicture.Dock = DockStyle.Fill;
             mBmpSize = this.ClientSize;
             mInkPicture.SelectionChanged += new InkOverlaySelectionChangedEventHandler(mInkPicture_SelectionChanged);
+            mInkPicture.Stroke += new InkCollectorStrokeEventHandler(mInkPicture_Stroke);
+        }
+
+        void mInkPicture_Stroke(object sender, InkCollectorStrokeEventArgs e)
+        {
+            mFormPalette.OnInkDrawMode();
         }
 
         public void setInkMode(Palette.MODE mode)

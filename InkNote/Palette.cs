@@ -484,7 +484,6 @@ namespace InkNote
             pictSave.Visible = true;
             pictSelect.Visible = true;
             pictSelInk.Visible = true;
-            pictUndo.Visible = true;
             UpdateButtonVisibleByCondition();
         }
 
@@ -510,7 +509,6 @@ namespace InkNote
             pictSave.Visible = true;
             pictSelect.Visible = true;
             pictSelInk.Visible = true;
-            pictUndo.Visible = true;
             UpdateButtonVisibleByCondition();
         }
 
@@ -536,16 +534,21 @@ namespace InkNote
             pictSave.Visible = true;
             pictSelect.Visible = true;
             pictSelInk.Visible = true;
-            pictUndo.Visible = true;
             UpdateButtonVisibleByCondition();
         }
 
         public void OnInkSelectMode()
         {
-            pictCleaner.Visible = false;
-            pictColor.Visible = false;
+            panelColorBlack.Visible = true;
+            panelColorBlue.Visible = true;
+            panelColorGreen.Visible = true;
+            panelColorRed.Visible = true;
+            panelColorWhite.Visible = true;
+            panelColorYellow.Visible = true;
+            pictCleaner.Visible = true;
+            pictColor.Visible = true;
             pictCopy.Visible = true;
-            pictErase.Visible = false;
+            pictErase.Visible = true;
             pictGrid.Visible = true;
             pictNew.Visible = true;
             pictPenBallL.Visible = true;
@@ -556,7 +559,6 @@ namespace InkNote
             pictSave.Visible = true;
             pictSelect.Visible = true;
             pictSelInk.Visible = false;
-            pictUndo.Visible = false;
             UpdateButtonVisibleByCondition();
         }
 
@@ -582,7 +584,6 @@ namespace InkNote
             pictSave.Visible = false;
             pictSelect.Visible = false;
             pictSelInk.Visible = false;
-            pictUndo.Visible = false;
             UpdateButtonVisibleByCondition();
         }
 
@@ -608,7 +609,6 @@ namespace InkNote
             pictSave.Visible = true;
             pictSelect.Visible = true;
             pictSelInk.Visible = true;
-            pictUndo.Visible = false;
             UpdateButtonVisibleByCondition();
         }
         
@@ -634,7 +634,6 @@ namespace InkNote
             pictSave.Visible = false;
             pictSelect.Visible = false;
             pictSelInk.Visible = false;
-            pictUndo.Visible = false;
             UpdateButtonVisibleByCondition();
         }
 
@@ -652,6 +651,17 @@ namespace InkNote
             else
             {
                 pictDelete.Visible = false;
+            }
+
+            if (mActiveNote != null
+                && mActiveNote.mInkPicture.InkEnabled
+                && mActiveNote.mInkPicture.Ink.Strokes.Count > 0)
+            {
+                pictUndo.Visible = true;
+            }
+            else
+            {
+                pictUndo.Visible = false;
             }
         }
 
