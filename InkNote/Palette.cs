@@ -142,8 +142,8 @@ namespace InkNote
             if (mActiveNote == null) return;
             mColor = Color.Blue;
             mMode = MODE.INK_DRAW;
-            UpdateDrawingAttributesAndModeOfNotes();
             OnInkDrawMode();
+            UpdateDrawingAttributesAndModeOfNotes();
             ActivatePaintingScreen();
         }
 
@@ -153,6 +153,7 @@ namespace InkNote
             mColor = Color.Yellow;
             mMode = MODE.INK_DRAW;
             OnInkDrawMode();
+            UpdateDrawingAttributesAndModeOfNotes();
             ActivatePaintingScreen();
         }
 
@@ -162,6 +163,7 @@ namespace InkNote
             mColor = Color.Lime;
             mMode = MODE.INK_DRAW;
             OnInkDrawMode();
+            UpdateDrawingAttributesAndModeOfNotes();
             ActivatePaintingScreen();
         }
 
@@ -171,6 +173,7 @@ namespace InkNote
             mColor = Color.White;
             mMode = MODE.INK_DRAW;
             OnInkDrawMode();
+            UpdateDrawingAttributesAndModeOfNotes();
             ActivatePaintingScreen();
         }
 
@@ -180,6 +183,7 @@ namespace InkNote
             mColor = Color.Black;
             mMode = MODE.INK_DRAW;
             OnInkDrawMode();
+            UpdateDrawingAttributesAndModeOfNotes();
             ActivatePaintingScreen();
         }
 
@@ -455,6 +459,8 @@ namespace InkNote
             if (mActiveNote == null) return;
             mActiveNote.Undo();
             mActiveNote.setInkMode(mMode);
+            UpdateButtonVisibleByCondition();
+            UpdateDrawingAttributesAndModeOfNotes();
             ActivatePaintingScreen();
         }
 
@@ -487,7 +493,6 @@ namespace InkNote
             pictPick.Visible = true;
             pictSave.Visible = true;
             pictSelect.Visible = true;
-            pictSelInk.Visible = true;
             UpdateButtonVisibleByCondition();
         }
 
@@ -500,9 +505,7 @@ namespace InkNote
             panelColorWhite.Visible = true;
             panelColorYellow.Visible = true;
             pictColor.Visible = true;
-            pictCleaner.Visible = true;
             pictCopy.Visible = true;
-            pictErase.Visible = false;
             pictGrid.Visible = true;
             pictNew.Visible = true;
             pictPenBallL.Visible = true;
@@ -512,7 +515,6 @@ namespace InkNote
             pictPick.Visible = true;
             pictSave.Visible = true;
             pictSelect.Visible = true;
-            pictSelInk.Visible = true;
             UpdateButtonVisibleByCondition();
         }
 
@@ -525,9 +527,7 @@ namespace InkNote
             panelColorWhite.Visible = true;
             panelColorYellow.Visible = true;
             pictColor.Visible = true;
-            pictCleaner.Visible = false;
             pictCopy.Visible = true;
-            pictErase.Visible = true;
             pictGrid.Visible = true;
             pictNew.Visible = true;
             pictPenBallL.Visible = true;
@@ -537,7 +537,6 @@ namespace InkNote
             pictPick.Visible = true;
             pictSave.Visible = true;
             pictSelect.Visible = true;
-            pictSelInk.Visible = true;
             UpdateButtonVisibleByCondition();
         }
 
@@ -549,10 +548,8 @@ namespace InkNote
             panelColorRed.Visible = true;
             panelColorWhite.Visible = true;
             panelColorYellow.Visible = true;
-            pictCleaner.Visible = true;
             pictColor.Visible = true;
             pictCopy.Visible = true;
-            pictErase.Visible = true;
             pictGrid.Visible = true;
             pictNew.Visible = true;
             pictPenBallL.Visible = true;
@@ -562,7 +559,6 @@ namespace InkNote
             pictPick.Visible = true;
             pictSave.Visible = true;
             pictSelect.Visible = true;
-            pictSelInk.Visible = false;
             UpdateButtonVisibleByCondition();
         }
 
@@ -575,9 +571,7 @@ namespace InkNote
             panelColorWhite.Visible = false;
             panelColorYellow.Visible = false;
             pictColor.Visible = false;
-            pictCleaner.Visible = false;
             pictCopy.Visible = false;
-            pictErase.Visible = false;
             pictGrid.Visible = false;
             pictNew.Visible = false;
             pictPenBallL.Visible = false;
@@ -587,7 +581,6 @@ namespace InkNote
             pictPick.Visible = false;
             pictSave.Visible = false;
             pictSelect.Visible = false;
-            pictSelInk.Visible = false;
             UpdateButtonVisibleByCondition();
         }
 
@@ -599,10 +592,8 @@ namespace InkNote
             panelColorRed.Visible = true;
             panelColorWhite.Visible = true;
             panelColorYellow.Visible = true;
-            pictColor.Visible = false;
-            pictCleaner.Visible = true;
+            pictColor.Visible = true;
             pictCopy.Visible = true;
-            pictErase.Visible = true;
             pictGrid.Visible = true;
             pictNew.Visible = true;
             pictPenBallL.Visible = true;
@@ -612,7 +603,6 @@ namespace InkNote
             pictPick.Visible = false;
             pictSave.Visible = true;
             pictSelect.Visible = true;
-            pictSelInk.Visible = true;
             UpdateButtonVisibleByCondition();
         }
         
@@ -625,9 +615,7 @@ namespace InkNote
             panelColorWhite.Visible = false;
             panelColorYellow.Visible = false;
             pictColor.Visible = false;
-            pictCleaner.Visible = false;
             pictCopy.Visible = true;
-            pictErase.Visible = false;
             pictGrid.Visible = false;
             pictNew.Visible = false;
             pictPenBallL.Visible = false;
@@ -637,7 +625,6 @@ namespace InkNote
             pictPick.Visible = false;
             pictSave.Visible = false;
             pictSelect.Visible = false;
-            pictSelInk.Visible = false;
             UpdateButtonVisibleByCondition();
         }
 
@@ -662,10 +649,18 @@ namespace InkNote
                 && mActiveNote.mInkPicture.Ink.Strokes.Count > 0)
             {
                 pictUndo.Visible = true;
+                pictSelInk.Visible = (mActiveNote.mInkPicture.EditingMode != InkOverlayEditingMode.Select);
+                pictCleaner.Visible = !(mActiveNote.mInkPicture.EditingMode == InkOverlayEditingMode.Delete
+                                    && mActiveNote.mInkPicture.EraserMode == InkOverlayEraserMode.StrokeErase);
+                pictErase.Visible = !(mActiveNote.mInkPicture.EditingMode == InkOverlayEditingMode.Delete
+                                    && mActiveNote.mInkPicture.EraserMode == InkOverlayEraserMode.PointErase);
             }
             else
             {
                 pictUndo.Visible = false;
+                pictSelInk.Visible = false;
+                pictCleaner.Visible = false;
+                pictErase.Visible = false;
             }
         }
 
@@ -699,6 +694,7 @@ namespace InkNote
             newNote.mInkPicture.DefaultDrawingAttributes.Height = mHeight;
             newNote.mInkPicture.DefaultDrawingAttributes.Width = mWidth;
             newNote.mInkPicture.DefaultDrawingAttributes.PenTip = mPenTip;
+            newNote.setInkMode(mMode);
             mNotes.Add(newNote);
         }
 
@@ -718,6 +714,7 @@ namespace InkNote
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 mColor = dlg.Color;
+                mMode = MODE.INK_DRAW;
                 UpdateDrawingAttributesAndModeOfNotes();
                 ActivatePaintingScreen();
                 OnInkDrawMode();

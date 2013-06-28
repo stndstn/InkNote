@@ -75,7 +75,7 @@
             // 
             this.panelColorRed.BackColor = System.Drawing.Color.Red;
             this.panelColorRed.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelColorRed.Location = new System.Drawing.Point(2, 0);
+            this.panelColorRed.Location = new System.Drawing.Point(2, 2);
             this.panelColorRed.Name = "panelColorRed";
             this.panelColorRed.Size = new System.Drawing.Size(17, 17);
             this.panelColorRed.TabIndex = 0;
@@ -85,7 +85,7 @@
             // 
             this.panelColorBlue.BackColor = System.Drawing.Color.Blue;
             this.panelColorBlue.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelColorBlue.Location = new System.Drawing.Point(21, 0);
+            this.panelColorBlue.Location = new System.Drawing.Point(25, 2);
             this.panelColorBlue.Name = "panelColorBlue";
             this.panelColorBlue.Size = new System.Drawing.Size(17, 17);
             this.panelColorBlue.TabIndex = 1;
@@ -95,7 +95,7 @@
             // 
             this.panelColorYellow.BackColor = System.Drawing.Color.Yellow;
             this.panelColorYellow.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelColorYellow.Location = new System.Drawing.Point(40, 0);
+            this.panelColorYellow.Location = new System.Drawing.Point(48, 2);
             this.panelColorYellow.Name = "panelColorYellow";
             this.panelColorYellow.Size = new System.Drawing.Size(17, 17);
             this.panelColorYellow.TabIndex = 3;
@@ -105,7 +105,7 @@
             // 
             this.panelColorGreen.BackColor = System.Drawing.Color.Lime;
             this.panelColorGreen.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelColorGreen.Location = new System.Drawing.Point(59, 0);
+            this.panelColorGreen.Location = new System.Drawing.Point(71, 2);
             this.panelColorGreen.Name = "panelColorGreen";
             this.panelColorGreen.Size = new System.Drawing.Size(17, 17);
             this.panelColorGreen.TabIndex = 4;
@@ -115,7 +115,7 @@
             // 
             this.panelColorWhite.BackColor = System.Drawing.Color.White;
             this.panelColorWhite.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelColorWhite.Location = new System.Drawing.Point(78, 0);
+            this.panelColorWhite.Location = new System.Drawing.Point(94, 2);
             this.panelColorWhite.Name = "panelColorWhite";
             this.panelColorWhite.Size = new System.Drawing.Size(17, 17);
             this.panelColorWhite.TabIndex = 5;
@@ -125,7 +125,7 @@
             // 
             this.panelColorBlack.BackColor = System.Drawing.Color.Black;
             this.panelColorBlack.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.panelColorBlack.Location = new System.Drawing.Point(97, 0);
+            this.panelColorBlack.Location = new System.Drawing.Point(117, 2);
             this.panelColorBlack.Name = "panelColorBlack";
             this.panelColorBlack.Size = new System.Drawing.Size(17, 17);
             this.panelColorBlack.TabIndex = 6;
@@ -135,7 +135,7 @@
             // 
             this.pictSelect.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictSelect.Image = global::InkNote.Properties.Resources.Image7;
-            this.pictSelect.Location = new System.Drawing.Point(78, 18);
+            this.pictSelect.Location = new System.Drawing.Point(94, 24);
             this.pictSelect.Name = "pictSelect";
             this.pictSelect.Size = new System.Drawing.Size(18, 18);
             this.pictSelect.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -147,7 +147,7 @@
             // 
             this.pictCopy.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictCopy.Image = global::InkNote.Properties.Resources.Image6;
-            this.pictCopy.Location = new System.Drawing.Point(40, 18);
+            this.pictCopy.Location = new System.Drawing.Point(48, 24);
             this.pictCopy.Name = "pictCopy";
             this.pictCopy.Size = new System.Drawing.Size(18, 18);
             this.pictCopy.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -159,7 +159,7 @@
             // 
             this.pictSave.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictSave.Image = global::InkNote.Properties.Resources.Image5;
-            this.pictSave.Location = new System.Drawing.Point(21, 18);
+            this.pictSave.Location = new System.Drawing.Point(25, 24);
             this.pictSave.Name = "pictSave";
             this.pictSave.Size = new System.Drawing.Size(18, 18);
             this.pictSave.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -171,7 +171,7 @@
             // 
             this.pictPenBallS.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictPenBallS.Image = global::InkNote.Properties.Resources.Image1;
-            this.pictPenBallS.Location = new System.Drawing.Point(2, 37);
+            this.pictPenBallS.Location = new System.Drawing.Point(2, 47);
             this.pictPenBallS.Name = "pictPenBallS";
             this.pictPenBallS.Size = new System.Drawing.Size(18, 18);
             this.pictPenBallS.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -183,7 +183,7 @@
             // 
             this.pictPenBallL.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictPenBallL.Image = global::InkNote.Properties.Resources.Image2;
-            this.pictPenBallL.Location = new System.Drawing.Point(21, 37);
+            this.pictPenBallL.Location = new System.Drawing.Point(25, 47);
             this.pictPenBallL.Name = "pictPenBallL";
             this.pictPenBallL.Size = new System.Drawing.Size(18, 18);
             this.pictPenBallL.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -195,7 +195,7 @@
             // 
             this.pictPenRectH.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictPenRectH.Image = global::InkNote.Properties.Resources.Image3;
-            this.pictPenRectH.Location = new System.Drawing.Point(40, 37);
+            this.pictPenRectH.Location = new System.Drawing.Point(48, 47);
             this.pictPenRectH.Name = "pictPenRectH";
             this.pictPenRectH.Size = new System.Drawing.Size(18, 18);
             this.pictPenRectH.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -207,7 +207,7 @@
             // 
             this.pictPenRectV.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictPenRectV.Image = global::InkNote.Properties.Resources.Image4;
-            this.pictPenRectV.Location = new System.Drawing.Point(59, 37);
+            this.pictPenRectV.Location = new System.Drawing.Point(71, 47);
             this.pictPenRectV.Name = "pictPenRectV";
             this.pictPenRectV.Size = new System.Drawing.Size(18, 18);
             this.pictPenRectV.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -219,7 +219,7 @@
             // 
             this.pictDelete.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictDelete.Image = global::InkNote.Properties.Resources.Image8;
-            this.pictDelete.Location = new System.Drawing.Point(97, 18);
+            this.pictDelete.Location = new System.Drawing.Point(140, 24);
             this.pictDelete.Name = "pictDelete";
             this.pictDelete.Size = new System.Drawing.Size(18, 18);
             this.pictDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -231,7 +231,7 @@
             // 
             this.pictGrid.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictGrid.Image = global::InkNote.Properties.Resources.Image9;
-            this.pictGrid.Location = new System.Drawing.Point(116, 18);
+            this.pictGrid.Location = new System.Drawing.Point(117, 24);
             this.pictGrid.Name = "pictGrid";
             this.pictGrid.Size = new System.Drawing.Size(18, 18);
             this.pictGrid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -243,7 +243,7 @@
             // 
             this.pictUndo.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictUndo.Image = global::InkNote.Properties.Resources.Image10;
-            this.pictUndo.Location = new System.Drawing.Point(135, 18);
+            this.pictUndo.Location = new System.Drawing.Point(163, 24);
             this.pictUndo.Name = "pictUndo";
             this.pictUndo.Size = new System.Drawing.Size(18, 18);
             this.pictUndo.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -255,7 +255,7 @@
             // 
             this.pictColor.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictColor.Image = global::InkNote.Properties.Resources.Image17;
-            this.pictColor.Location = new System.Drawing.Point(116, 0);
+            this.pictColor.Location = new System.Drawing.Point(140, 2);
             this.pictColor.Name = "pictColor";
             this.pictColor.Size = new System.Drawing.Size(18, 18);
             this.pictColor.TabIndex = 17;
@@ -266,7 +266,7 @@
             // 
             this.pictErase.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictErase.Image = global::InkNote.Properties.Resources.Image12;
-            this.pictErase.Location = new System.Drawing.Point(116, 37);
+            this.pictErase.Location = new System.Drawing.Point(140, 47);
             this.pictErase.Name = "pictErase";
             this.pictErase.Size = new System.Drawing.Size(18, 18);
             this.pictErase.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -278,7 +278,7 @@
             // 
             this.pictPick.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictPick.Image = global::InkNote.Properties.Resources.Image13;
-            this.pictPick.Location = new System.Drawing.Point(78, 37);
+            this.pictPick.Location = new System.Drawing.Point(94, 47);
             this.pictPick.Name = "pictPick";
             this.pictPick.Size = new System.Drawing.Size(18, 18);
             this.pictPick.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -290,7 +290,7 @@
             // 
             this.pictCleaner.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictCleaner.Image = global::InkNote.Properties.Resources.Image14;
-            this.pictCleaner.Location = new System.Drawing.Point(135, 37);
+            this.pictCleaner.Location = new System.Drawing.Point(163, 47);
             this.pictCleaner.Name = "pictCleaner";
             this.pictCleaner.Size = new System.Drawing.Size(18, 18);
             this.pictCleaner.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -302,7 +302,7 @@
             // 
             this.pictNew.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictNew.Image = global::InkNote.Properties.Resources.Image15;
-            this.pictNew.Location = new System.Drawing.Point(2, 18);
+            this.pictNew.Location = new System.Drawing.Point(2, 24);
             this.pictNew.Name = "pictNew";
             this.pictNew.Size = new System.Drawing.Size(18, 18);
             this.pictNew.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -314,7 +314,7 @@
             // 
             this.pictSelInk.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictSelInk.Image = global::InkNote.Properties.Resources.Image18;
-            this.pictSelInk.Location = new System.Drawing.Point(97, 37);
+            this.pictSelInk.Location = new System.Drawing.Point(117, 47);
             this.pictSelInk.Name = "pictSelInk";
             this.pictSelInk.Size = new System.Drawing.Size(18, 18);
             this.pictSelInk.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -326,7 +326,7 @@
             // 
             this.pictPaste.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.pictPaste.Image = global::InkNote.Properties.Resources.image19;
-            this.pictPaste.Location = new System.Drawing.Point(59, 18);
+            this.pictPaste.Location = new System.Drawing.Point(71, 24);
             this.pictPaste.Name = "pictPaste";
             this.pictPaste.Size = new System.Drawing.Size(18, 18);
             this.pictPaste.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
@@ -338,7 +338,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(158, 60);
+            this.ClientSize = new System.Drawing.Size(184, 67);
             this.Controls.Add(this.pictPaste);
             this.Controls.Add(this.pictSelInk);
             this.Controls.Add(this.pictNew);

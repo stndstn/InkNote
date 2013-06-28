@@ -179,8 +179,18 @@ namespace InkNote
                         mPickedBmpDataTmp.Dispose();
                         mPickedBmpDataTmp = null;
                     }
+                    // clear all picked flag.
                     foreach (BitmapPosData bmpData in mBgBitmaps)
                     {
+                        if (bmpData.isPicked)
+                        {
+                            bmpData.isPicked = false;
+                            needRedraw = true;
+                        }
+                    }
+                    for (int i = mBgBitmaps.Count - 1; i >= 0; i--)
+                    {
+                        BitmapPosData bmpData = mBgBitmaps[i];
                         if (bmpData.region.IsVisible(e.Location))
                         {
                             mPickedBmpDataRef = bmpData;
@@ -200,15 +210,7 @@ namespace InkNote
                                     mPickedBmpDataTmp.bitmap.SetPixel(x, y, cc);
                                 }
                             }
-                            //break;
-                        }
-                        else
-                        {
-                            if (bmpData.isPicked)
-                            {
-                                bmpData.isPicked = false;
-                                needRedraw = true;
-                            }
+                            break;
                         }
                     }
 
@@ -922,6 +924,7 @@ namespace InkNote
                         {
                             bool bRet = mBgBitmaps.Remove(data);
                             mPickedBmpDataRef = null;
+                            mFormPalette.OnImagePickMode();
                             break;
                         }
                     }
