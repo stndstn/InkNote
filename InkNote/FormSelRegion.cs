@@ -121,12 +121,5 @@ namespace InkNote
             if (mSelectedBitmapData != null) mSelectedBitmapData.Dispose();
             Console.WriteLine("<< FormSelRegion_FormClosing");
         }
-
-        public void Dispose()
-        {
-            Console.WriteLine("FormSelRegion.Dispose() >>");
-            base.Dispose();
-            Console.WriteLine("<< FormSelRegion.Dispose()");
-        }
     }
 }

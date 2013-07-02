@@ -15,6 +15,7 @@
         {
             System.Console.WriteLine("Dispose >>");
             if (mSelRegion != null) mSelRegion.Dispose();
+            if (mBgBmp != null) mBgBmp.Dispose();
             if (disposing && (components != null))
             {
                 components.Dispose();

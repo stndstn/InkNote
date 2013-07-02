@@ -17,6 +17,9 @@
             {
                 components.Dispose();
             }
+            if (mBmpBG != null) mBmpBG.Dispose();
+            if (mBmpTempBG != null) mBmpTempBG.Dispose();
+            if (mPickedBmpDataTmp != null) mPickedBmpDataTmp.Dispose();
 
             base.Dispose(disposing);
         }
