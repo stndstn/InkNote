@@ -97,6 +97,12 @@
     <Compile Include="FormNote.Designer.cs">
       <DependentUpon>FormNote.cs</DependentUpon>
     </Compile>
+    <Compile Include="FormTransparent.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FormTransparent.Designer.cs">
+      <DependentUpon>FormTransparent.cs</DependentUpon>
+    </Compile>
     <Compile Include="MdiContainer.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -118,6 +124,9 @@
     <EmbeddedResource Include="FormSelRegion.resx">
       <DependentUpon>FormSelRegion.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FormTransparent.resx">
+      <DependentUpon>FormTransparent.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="MdiContainer.resx">
       <DependentUpon>MdiContainer.cs</DependentUpon>
@@ -226,6 +235,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Icon1.ico" />
+    <None Include="Resources\Image20.bmp" />
     <None Include="Resources\image19.bmp" />
     <None Include="Resources\Image18.bmp" />
   </ItemGroup>

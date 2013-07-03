@@ -53,6 +53,7 @@
             this.pictNew = new System.Windows.Forms.PictureBox();
             this.pictSelInk = new System.Windows.Forms.PictureBox();
             this.pictPaste = new System.Windows.Forms.PictureBox();
+            this.pictTransparent = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictSelect)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictCopy)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictSave)).BeginInit();
@@ -70,6 +71,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictNew)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictSelInk)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictPaste)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictTransparent)).BeginInit();
             this.SuspendLayout();
             // 
             // panelColorRed
@@ -335,11 +337,23 @@
             this.pictPaste.TabStop = false;
             this.pictPaste.Click += new System.EventHandler(this.pictPaste_Click);
             // 
+            // pictTransparent
+            // 
+            this.pictTransparent.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.pictTransparent.Image = global::InkNote.Properties.Resources.Image20;
+            this.pictTransparent.Location = new System.Drawing.Point(163, 2);
+            this.pictTransparent.Name = "pictTransparent";
+            this.pictTransparent.Size = new System.Drawing.Size(18, 18);
+            this.pictTransparent.TabIndex = 24;
+            this.pictTransparent.TabStop = false;
+            this.pictTransparent.Click += new System.EventHandler(this.pictTransparent_Click);
+            // 
             // Palette
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(184, 67);
+            this.Controls.Add(this.pictTransparent);
             this.Controls.Add(this.pictPaste);
             this.Controls.Add(this.pictSelInk);
             this.Controls.Add(this.pictNew);
@@ -394,6 +408,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictNew)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictSelInk)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictPaste)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.pictTransparent)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -424,5 +439,6 @@
         private System.Windows.Forms.PictureBox pictNew;
         private System.Windows.Forms.PictureBox pictSelInk;
         private System.Windows.Forms.PictureBox pictPaste;
+        private System.Windows.Forms.PictureBox pictTransparent;
     }
 }

@@ -29,6 +29,7 @@ namespace InkNote
         public MODE mMode = MODE.INK_DRAW;
 
         public Color mColor;
+        public byte mTransparency;
         public float mWidth;
         public float mHeight;
         public PenTip mPenTip;
@@ -80,7 +81,7 @@ namespace InkNote
             mWidth = mActiveNote.mInkPicture.DefaultDrawingAttributes.Width;
             mHeight = mActiveNote.mInkPicture.DefaultDrawingAttributes.Height;
             mPenTip = mActiveNote.mInkPicture.DefaultDrawingAttributes.PenTip;
-
+            mTransparency = mActiveNote.mInkPicture.DefaultDrawingAttributes.Transparency;
             mMode = MODE.INK_DRAW;
             mActiveNote.setInkMode(mMode);
             OnInkDrawMode();
@@ -124,6 +125,7 @@ namespace InkNote
                 note.mInkPicture.DefaultDrawingAttributes.Height = mHeight;
                 note.mInkPicture.DefaultDrawingAttributes.Width = mWidth;
                 note.mInkPicture.DefaultDrawingAttributes.PenTip = mPenTip;
+                note.mInkPicture.DefaultDrawingAttributes.Transparency = mTransparency;
                 note.setInkMode(mMode);
             }
         }
@@ -161,6 +163,7 @@ namespace InkNote
         {
             if (mActiveNote == null) return;
             mColor = Color.Lime;
+            mActiveNote.mInkPicture.DefaultDrawingAttributes.Transparency = (byte)127;
             mMode = MODE.INK_DRAW;
             OnInkDrawMode();
             UpdateDrawingAttributesAndModeOfNotes();
@@ -739,6 +742,20 @@ namespace InkNote
                 mMode = MODE.IMG_PICK;
                 mActiveNote.setInkMode(mMode);
             }
+        }
+
+        private void pictTransparent_Click(object sender, EventArgs e)
+        {
+            if (mActiveNote == null) return;
+
+            FormTransparent form = new FormTransparent(mTransparency);
+            form.mShowLocation = this.Location;
+            form.ShowDialog();
+            mTransparency = (byte)form.Value;
+            mMode = MODE.INK_DRAW;
+            UpdateDrawingAttributesAndModeOfNotes();
+            OnInkDrawMode();
+            ActivatePaintingScreen();
         }
 
     }
