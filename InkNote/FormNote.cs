@@ -644,8 +644,22 @@ namespace InkNote
             }
             Console.WriteLine("<< LoadData");
         }
+        public void Save(string dir)
+        {
+            Save();
+            System.IO.FileInfo fiCurrentPath = new System.IO.FileInfo(dataPath);
+            string name = fiCurrentPath.Name;
+            fiCurrentPath.MoveTo(dir + "\\" + name);
+            dataPath = fiCurrentPath.FullName;
+        }
         public void Save()
         {
+            bool wasActivated = false;
+            if (mIsActivated)
+            {
+                this.mFormPalette.Activate();
+                wasActivated = true;
+            }
             System.Xml.XmlDocument doc = new System.Xml.XmlDocument();
             XmlElement dataNode = doc.CreateElement("data");
             dataNode.SetAttribute("x", this.Location.X.ToString());
@@ -714,7 +728,11 @@ namespace InkNote
             }
             else
             {
-                string dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
+                string dirPath = string.Empty;
+                if (Program.s_appDataDir.Length > 0)
+                    dirPath = Program.s_appDataDir;
+                else
+                    dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
                 if (System.IO.Directory.Exists(dirPath) == false)
                 {
                     System.IO.DirectoryInfo dirInfo = System.IO.Directory.CreateDirectory(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote");
@@ -722,6 +740,11 @@ namespace InkNote
                 string name = Guid.NewGuid().ToString();
                 dataPath = dirPath + "\\" + name + ".ikn";
                 doc.Save(dataPath);
+            }
+            if (wasActivated)
+            {
+                this.Activate();
+                wasActivated = true;
             }
         }
         /*

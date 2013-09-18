@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Windows.Forms;
 using Microsoft.Ink;
+using System.Configuration;
 
 namespace InkNote
 {
@@ -52,7 +53,11 @@ namespace InkNote
         private void Palette_Load(object sender, EventArgs e)
         {
             mNotes = new List<FormNote>();
-            string dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
+            string dirPath = string.Empty;
+            if (Program.s_appDataDir.Length > 0)
+                dirPath = Program.s_appDataDir;
+            else
+                dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
             try
             {
                 string[] pathes = System.IO.Directory.GetFiles(dirPath, "*.ikn");
@@ -206,8 +211,77 @@ namespace InkNote
 
         private void pictSave_Click(object sender, EventArgs e)
         {
+            string dirPath = string.Empty;
+            if (Program.s_appDataDir.Length > 0)
+                dirPath = Program.s_appDataDir;
+            else
+                dirPath = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData) + "\\InkNote";
+
+            System.Windows.Forms.FolderBrowserDialog dlg = new FolderBrowserDialog();
+            dlg.Description = "Please select a folder to save the all note data.";
+            dlg.SelectedPath = dirPath;
+            DialogResult result = dlg.ShowDialog();
+            if (result == DialogResult.OK)
+            {
+                string folderName = dlg.SelectedPath;
+                if (System.IO.Directory.Exists(folderName))
+                {
+                    Program.s_appDataDir = folderName;
+                    //ConfigurationManager.AppSettings..Set("DataDir", folderName);
+
+                    // Get the configuration  
+                    // that applies to the all user.
+                    Configuration appConfig =
+                      ConfigurationManager.OpenExeConfiguration(
+                       ConfigurationUserLevel.None);
+
+                    // Map the roaming configuration file. This 
+                    // enables the application to access  
+                    // the configuration file using the 
+                    // System.Configuration.Configuration class
+                    ExeConfigurationFileMap configFileMap =
+                      new ExeConfigurationFileMap();
+                    configFileMap.ExeConfigFilename =
+                      appConfig.FilePath;
+
+                    // Get the mapped configuration file.
+                    Configuration config =
+                      ConfigurationManager.OpenMappedExeConfiguration(
+                        configFileMap, ConfigurationUserLevel.None);
+
+                    config.AppSettings.Settings.Add("DataDir", folderName);
+
+                    try
+                    {
+                        // Synchronize the application configuration 
+                        // if needed. The following two steps seem 
+                        // to solve some out of synch issues  
+                        // between roaming and default 
+                        // configuration.
+                        config.Save(ConfigurationSaveMode.Modified);
+
+                    }
+                    catch (ConfigurationErrorsException ex)
+                    {
+                        Console.WriteLine("[Exception error: {0}]",
+                            ex.ToString());
+                    }
+
+                    foreach (Form c in this.MdiParent.MdiChildren)
+                    {
+                        if (c is FormNote)
+                        {
+                            FormNote note = c as FormNote;
+                            note.Save(folderName);
+                        }
+                    }
+                }
+            }
+
+            /*
             if (mActiveNote == null) return;
             mActiveNote.Save();
+             */
             mActiveNote.setInkMode(mMode);
             ActivatePaintingScreen();
         }
